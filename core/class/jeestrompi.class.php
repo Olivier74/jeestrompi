@@ -119,16 +119,16 @@ class jeestrompi extends eqLogic {
 
   // Fonction exécutée automatiquement après la sauvegarde (création ou mise à jour) de l'équipement
   public function postSave() {
-	  $mode = $this->getCmd(null, 'mode');
-	  if (!is_object($mode)) {
-		$mode = new vdmCmd();
-		$mode->setName(__('Histoire', __FILE__));
+	  $info = $this->getCmd(null, 'mode');
+	  if (!is_object($info)) {
+		$info = new vdmCmd();
+		$info->setName(__('Histoire', __FILE__));
 	  }
-	  $mode->setLogicalId('mode');
-	  $mode->setEqLogic_id($this->getId());
-	  $mode->setType('info');
-	  $mode->setSubType('numeric');
-	  $mode->save();
+	  $info->setLogicalId('mode');
+	  $info->setEqLogic_id($this->getId());
+	  $info->setType('info');
+	  $info->setSubType('numeric');
+	  $info->save();
 
 	  $refresh = $this->getCmd(null, 'refresh');
 	  if (!is_object($refresh)) {
