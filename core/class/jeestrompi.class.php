@@ -127,7 +127,7 @@ class jeestrompi extends eqLogic {
 	  $mode->setLogicalId('mode');
 	  $mode->setEqLogic_id($this->getId());
 	  $mode->setType('info');
-	  $mode->setSubType('integer');
+	  $mode->setSubType('numeric');
 	  $mode->save();
 
 	  $refresh = $this->getCmd(null, 'refresh');
