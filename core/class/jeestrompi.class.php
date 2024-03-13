@@ -119,12 +119,12 @@ class jeestrompi extends eqLogic {
 
   // Fonction exécutée automatiquement après la sauvegarde (création ou mise à jour) de l'équipement
   public function postSave() {
-	  $info = $this->getCmd(null, 'mode');
+	  $info = $this->getCmd(null, 'story');
 	  if (!is_object($info)) {
 		$info = new vdmCmd();
 		$info->setName(__('Histoire', __FILE__));
 	  }
-	  $info->setLogicalId('mode');
+	  $info->setLogicalId('story');
 	  $info->setEqLogic_id($this->getId());
 	  $info->setType('info');
 	  $info->setSubType('string');
@@ -141,6 +141,7 @@ class jeestrompi extends eqLogic {
 	  $refresh->setSubType('other');
 	  $refresh->save();
   }
+
 
   // Fonction exécutée automatiquement avant la suppression de l'équipement
   public function preRemove() {
@@ -165,6 +166,17 @@ class jeestrompi extends eqLogic {
   * Permet de modifier l'affichage du widget (également utilisable par les commandes)
   public function toHtml($_version = 'dashboard') {}
   */
+  public function randomVdm() {
+  $url = "http://www.viedemerde.fr/aleatoire";
+  $data = file_get_contents($url);
+  @$dom = new DOMDocument();
+  libxml_use_internal_errors(true);
+  $dom->loadHTML($data);
+  libxml_use_internal_errors(false);
+  $xpath = new DOMXPath($dom);
+  $divs = $xpath->query('//article[@class="art-panel col-xs-12"]//div[@class="panel-content"]//p//a');
+  return $divs[0]->nodeValue ;
+  }
 
   /*     * **********************Getteur Setteur*************************** */
 }
@@ -190,6 +202,14 @@ class jeestrompiCmd extends cmd {
 
   // Exécution d'une commande
   public function execute($_options = array()) {
+  $eqlogic = $this->getEqLogic(); //récupère l'éqlogic de la commande $this
+  switch ($this->getLogicalId()) { //vérifie le logicalid de la commande
+    case 'refresh': // LogicalId de la commande rafraîchir que l’on a créé dans la méthode Postsave de la classe vdm .
+    $info = $eqlogic->randomVdm(); //On lance la fonction randomVdm() pour récupérer une vdm et on la stocke dans la variable $info
+    $eqlogic->checkAndUpdateCmd('story', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
+    break;
   }
+}
+
   /*     * **********************Getteur Setteur*************************** */
 }
