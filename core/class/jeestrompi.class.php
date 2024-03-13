@@ -64,7 +64,13 @@ class jeestrompi extends eqLogic {
   * Fonction exécutée automatiquement toutes les heures par Jeedom
   public static function cronHourly() {}
   */
-
+  foreach (self::byType('vdm', true) as $vdm) { //parcours tous les équipements actifs du plugin vdm
+    $cmd = $vdm->getCmd(null, 'refresh'); //retourne la commande "refresh" si elle existe
+    if (!is_object($cmd)) { //Si la commande n'existe pas
+    continue; //continue la boucle
+    }
+    $cmd->execCmd(); //la commande existe on la lance
+  }
   /*
   * Fonction exécutée automatiquement tous les jours par Jeedom
   public static function cronDaily() {}
