@@ -41,14 +41,14 @@ if (!isConnect()) {
       </div>
     </div>
     <div class="form-group">
-      <label class="col-md-4 control-label">{{Global param 3}}
+      <label class="col-md-4 control-label">{{Paramètre du port série}}
         <sup><i class="fas fa-question-circle tooltips" title="{{Sélectionnez du paramètre 3 du plugin}}"></i></sup>
       </label>
       <div class="col-md-4">
         <select class="configKey form-control" data-l1key="param3">
           <option value=""></option>
-          <option value="value1">value1</option>
-          <option value="value2">value2</option>
+          <option value="value1">/dev/serial0</option>
+          <option value="value2">/dev/serial1</option>
         </select>
       </div>
     </div>
