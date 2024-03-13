@@ -200,7 +200,7 @@ class jeestrompiCmd extends cmd {
   }
   /*     * **********************Getteur Setteur*************************** */
 	public function strompi-status() {
-	  $nbre = random_int(100, 999)
+	  $nbre = random_int(100, 999);
 	  return $nbre ->nodeValue ;
 	}
 
