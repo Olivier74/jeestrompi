@@ -119,6 +119,27 @@ class jee-strompi extends eqLogic {
 
   // Fonction exécutée automatiquement après la sauvegarde (création ou mise à jour) de l'équipement
   public function postSave() {
+	  $mode = $this->getCmd(null, 'mode');
+	  if (!is_object($mode)) {
+		$mode = new vdmCmd();
+		$mode->setName(__('Histoire', __FILE__));
+	  }
+	  $mode->setLogicalId('mode');
+	  $mode->setEqLogic_id($this->getId());
+	  $mode->setType('info');
+	  $mode->setSubType('integer');
+	  $mode->save();
+
+	  $refresh = $this->getCmd(null, 'refresh');
+	  if (!is_object($refresh)) {
+		$refresh = new vdmCmd();
+		$refresh->setName(__('Rafraichir', __FILE__));
+	  }
+	  $refresh->setEqLogic_id($this->getId());
+	  $refresh->setLogicalId('refresh');
+	  $refresh->setType('action');
+	  $refresh->setSubType('other');
+	  $refresh->save();
   }
 
   // Fonction exécutée automatiquement avant la suppression de l'équipement
@@ -169,7 +190,18 @@ class jee-strompiCmd extends cmd {
 
   // Exécution d'une commande
   public function execute($_options = array()) {
+	$eqlogic = $this->getEqLogic(); //récupère l'éqlogic de la commande $this
+	switch ($this->getLogicalId()) { //vérifie le logicalid de la commande
+		case 'refresh': // LogicalId de la commande rafraîchir que l’on a créé dans la méthode Postsave de la classe vdm .
+		$mode = $eqlogic->strompi-status(); //On lance la fonction randomVdm() pour récupérer une vdm et on la stocke dans la variable $info
+		$eqlogic->checkAndUpdateCmd('mode', $mode); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
+		break;
+	}
   }
-
   /*     * **********************Getteur Setteur*************************** */
+	public function strompi-status() {
+	  $nbre = random_int(100, 999)
+	  return $nbre ->nodeValue ;
+	}
+
 }
