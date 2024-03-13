@@ -25,31 +25,22 @@ if (!isConnect()) {
 <form class="form-horizontal">
   <fieldset>
     <div class="form-group">
-      <label class="col-md-4 control-label">{{Global param 1}}
-        <sup><i class="fas fa-question-circle tooltips" title="{{Renseignez le paramètre 1 du plugin}}"></i></sup>
+      <label class="col-md-4 control-label">{{Paramètre du port série}}
+        <sup><i class="fas fa-question-circle tooltips" title="{{Renseignez le port de communication de la carte StromPi}}"></i></sup>
       </label>
       <div class="col-md-4">
         <input class="configKey form-control" data-l1key="param1"/>
+		<option value=""></option>
+          <option value="value1">/dev/serial0</option>
+          <option value="value2">/dev/serial1</option>
       </div>
     </div>
     <div class="form-group">
-      <label class="col-md-4 control-label">{{Global param 2}}
-        <sup><i class="fas fa-question-circle tooltips" title="{{Renseignez le paramètre 2 du plugin}}"></i></sup>
+      <label class="col-md-4 control-label">{{Vitesse port serie}}
+        <sup><i class="fas fa-question-circle tooltips" title="{{Renseignez la vitesse du port de la carte StromPi}}"></i></sup>
       </label>
       <div class="col-md-4">
         <input class="configKey form-control" data-l1key="param2"/>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="col-md-4 control-label">{{Paramètre du port série}}
-        <sup><i class="fas fa-question-circle tooltips" title="{{Sélectionnez du paramètre 3 du plugin}}"></i></sup>
-      </label>
-      <div class="col-md-4">
-        <select class="configKey form-control" data-l1key="param3">
-          <option value=""></option>
-          <option value="value1">/dev/serial0</option>
-          <option value="value2">/dev/serial1</option>
-        </select>
       </div>
     </div>
   </fieldset>
