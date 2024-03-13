@@ -193,15 +193,15 @@ class jeestrompiCmd extends cmd {
 	$eqlogic = $this->getEqLogic(); //récupère l'éqlogic de la commande $this
 	switch ($this->getLogicalId()) { //vérifie le logicalid de la commande
 		case 'refresh': // LogicalId de la commande rafraîchir que l’on a créé dans la méthode Postsave de la classe vdm .
-		$mode = $eqlogic->strompi-status(); //On lance la fonction randomVdm() pour récupérer une vdm et on la stocke dans la variable $info
+		$mode = "123456"; //On lance la fonction randomVdm() pour récupérer une vdm et on la stocke dans la variable $info
 		$eqlogic->checkAndUpdateCmd('mode', $mode); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
 		break;
 	}
   }
   /*     * **********************Getteur Setteur*************************** */
-	public function strompi-status() {
+	/*public function strompi-status() {
 	  $nbre = random_int(100, 999);
 	  return $nbre ->nodeValue ;
-	}
+	}*/
 
 }
