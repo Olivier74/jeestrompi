@@ -178,6 +178,19 @@ class jeestrompi extends eqLogic {
   $StromPiWide->setSubType('numeric');
   $StromPiWide->save();
 
+  $StromPiUSB = $this->getCmd(null, 'StromPiUSB');
+  if (!is_object($StromPiUSB)) {
+    $StromPiUSB = new jeestrompiCmd();
+    $StromPiUSB->setName(__('Strompi Wide', __FILE__));
+  }
+  $StromPiUSB->setLogicalId('StromPiUSB');
+  $StromPiUSB->setEqLogic_id($this->getId());
+  $StromPiUSB->setType('info');
+  $StromPiUSB->setTemplate('dashboard','tile');//template pour le dashboard
+  $StromPiUSB->setSubType('numeric');
+  $StromPiUSB->save();
+
+
   $refresh = $this->getCmd(null, 'refresh');
   if (!is_object($refresh)) {
     $refresh = new jeestrompiCmd();
@@ -244,12 +257,14 @@ class jeestrompiCmd extends cmd {
     case 'refresh': // LogicalId de la commande rafraîchir que l’on a créé dans la méthode Postsave de la classe vdm .
      log::add('jeestrompi', 'info', 'mise a jour story');
      /*$info = $eqlogic->randomVdm(); //On lance la fonction randomVdm() pour récupérer une vdm et on la stocke dans la variable $info*/
-     $info = 12;
+     $info = random_int(1, 6);
      $eqlogic->checkAndUpdateCmd('strompimode', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
-	 $info = 12;
+	 $info = random_int(0, 3.5);
      $eqlogic->checkAndUpdateCmd('StromPiLifePo4', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
-	 $info = 12;
+	 $info = random_int(1, 24);
      $eqlogic->checkAndUpdateCmd('StromPiWide', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
+	 $info = random_int(1, 5);
+     $eqlogic->checkAndUpdateCmd('StromPiUSB', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
     break;
     }
 }
