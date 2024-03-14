@@ -59,18 +59,31 @@ class jeestrompi extends eqLogic {
   * Fonction exécutée automatiquement toutes les 30 minutes par Jeedom
   public static function cron30() {}
   */
-
+  public function randomVdm() {
+    $url = "http://www.viedemerde.fr/aleatoire";
+    $data = file_get_contents($url);
+    @$dom = new DOMDocument();
+    libxml_use_internal_errors(true);
+    $dom->loadHTML($data);
+    libxml_use_internal_errors(false);
+    $xpath = new DOMXPath($dom);
+    $divs = $xpath->query('//article[@class="art-panel col-xs-12"]//div[@class="panel-content"]//p//a');
+    return $divs[0]->nodeValue ;
+  }
   /*
   * Fonction exécutée automatiquement toutes les heures par Jeedom
   public static function cronHourly() {}
   */
-  foreach (self::byType('vdm', true) as $vdm) { //parcours tous les équipements actifs du plugin vdm
-    $cmd = $vdm->getCmd(null, 'refresh'); //retourne la commande "refresh" si elle existe
-    if (!is_object($cmd)) { //Si la commande n'existe pas
-    continue; //continue la boucle
+  public static function cronHourly () {
+    foreach (self::byType('jeestrompi', true) as $jeestrompi) { //parcours tous les équipements actifs du plugin vdm
+      $cmd = $jeestrompi->getCmd(null, 'refresh'); //retourne la commande "refresh" si elle existe
+      if (!is_object($cmd)) { //Si la commande n'existe pas
+      continue; //continue la boucle
     }
     $cmd->execCmd(); //la commande existe on la lance
+    }
   }
+
   /*
   * Fonction exécutée automatiquement tous les jours par Jeedom
   public static function cronDaily() {}
@@ -109,6 +122,7 @@ class jeestrompi extends eqLogic {
 
   // Fonction exécutée automatiquement après la création de l'équipement
   public function postInsert() {
+    
   }
 
   // Fonction exécutée automatiquement avant la mise à jour de l'équipement
@@ -117,7 +131,9 @@ class jeestrompi extends eqLogic {
 
   // Fonction exécutée automatiquement après la mise à jour de l'équipement
   public function postUpdate() {
+    /*self::cronHourly($this->getId()); //lance la fonction cronHourly avec l’id de l’eqLogic*/
   }
+
 
   // Fonction exécutée automatiquement avant la sauvegarde (création ou mise à jour) de l'équipement
   public function preSave() {
@@ -125,13 +141,29 @@ class jeestrompi extends eqLogic {
 
   // Fonction exécutée automatiquement après la sauvegarde (création ou mise à jour) de l'équipement
   public function postSave() {
-	  $type = $this->getConfiguration('type', 'account');
-        $this->createCommands(__DIR__  . '/../config/params.json', $type);
+  $info = $this->getCmd(null, 'story');
+  if (!is_object($info)) {
+    $info = new jeestrompiCmd();
+    $info->setName(__('Histoire', __FILE__));
+  }
+  $info->setLogicalId('story');
+  $info->setEqLogic_id($this->getId());
+  $info->setType('info');
+  $info->setTemplate('dashboard','tile');//template pour le dashboard
+  $info->setSubType('string');
+  $info->save();
 
-        if ($type == 'account') {
-            $cron = cron::byClassAndFunction('noip', 'autoCheck');
-            $this->checkAndUpdateCmd('nextcheck', $cron->getNextRunDate());
-        }
+
+  $refresh = $this->getCmd(null, 'refresh');
+  if (!is_object($refresh)) {
+    $refresh = new jeestrompiCmd();
+    $refresh->setName(__('Rafraichir', __FILE__));
+  }
+  $refresh->setEqLogic_id($this->getId());
+  $refresh->setLogicalId('refresh');
+  $refresh->setType('action');
+  $refresh->setSubType('other');
+  $refresh->save();
   }
 
   // Fonction exécutée automatiquement avant la suppression de l'équipement
@@ -182,13 +214,16 @@ class jeestrompiCmd extends cmd {
 
   // Exécution d'une commande
   public function execute($_options = array()) {
-  $eqlogic = $this->getEqLogic(); //récupère l'éqlogic de la commande $this
-  switch ($this->getLogicalId()) { //vérifie le logicalid de la commande
+    log::add('jeestrompi', 'info', 'Lancement update');
+    $eqlogic = $this->getEqLogic(); //récupère l'éqlogic de la commande $this
+    switch ($this->getLogicalId()) { //vérifie le logicalid de la commande
     case 'refresh': // LogicalId de la commande rafraîchir que l’on a créé dans la méthode Postsave de la classe vdm .
-    $info = '123'; //On lance la fonction randomVdm() pour récupérer une vdm et on la stocke dans la variable $info
-    $eqlogic->checkAndUpdateCmd('story', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
+     log::add('jeestrompi', 'info', 'mise a jour story');
+     $info = $eqlogic->randomVdm(); //On lance la fonction randomVdm() pour récupérer une vdm et on la stocke dans la variable $info
+     /*$info = 123456;*/
+     $eqlogic->checkAndUpdateCmd('story', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
     break;
-  }
+    }
 }
 
   /*     * **********************Getteur Setteur*************************** */
