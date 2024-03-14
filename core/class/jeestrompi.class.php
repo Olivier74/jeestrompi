@@ -169,7 +169,7 @@ class jeestrompi extends eqLogic {
   $StromPiWide = $this->getCmd(null, 'StromPiWide');
   if (!is_object($StromPiWide)) {
     $StromPiWide = new jeestrompiCmd();
-    $StromPiWide->setName(__('Strompi LifePo4', __FILE__));
+    $StromPiWide->setName(__('Strompi Wide', __FILE__));
   }
   $StromPiWide->setLogicalId('StromPiWide');
   $StromPiWide->setEqLogic_id($this->getId());
@@ -246,6 +246,10 @@ class jeestrompiCmd extends cmd {
      /*$info = $eqlogic->randomVdm(); //On lance la fonction randomVdm() pour récupérer une vdm et on la stocke dans la variable $info*/
      $info = 12;
      $eqlogic->checkAndUpdateCmd('strompimode', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
+	 $info = 12;
+     $eqlogic->checkAndUpdateCmd('StromPiLifePo4', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
+	 $info = 12;
+     $eqlogic->checkAndUpdateCmd('StromPiWide', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
     break;
     }
 }
