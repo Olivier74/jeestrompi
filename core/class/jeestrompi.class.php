@@ -142,17 +142,17 @@ class jeestrompi extends eqLogic {
 
   // Fonction exécutée automatiquement après la sauvegarde (création ou mise à jour) de l'équipement
   public function postSave() {
-  $info = $this->getCmd(null, 'story');
-  if (!is_object($info)) {
-    $info = new jeestrompiCmd();
-    $info->setName(__('Histoire', __FILE__));
+  $mode = $this->getCmd(null, 'mode');
+  if (!is_object($mode)) {
+    $mode = new jeestrompiCmd();
+    $mode->setName(__('Strompi Mode', __FILE__));
   }
-  $info->setLogicalId('story');
-  $info->setEqLogic_id($this->getId());
-  $info->setType('info');
-  $info->setTemplate('dashboard','tile');//template pour le dashboard
-  $info->setSubType('string');
-  $info->save();
+  $mode->setLogicalId('mode');
+  $mode->setEqLogic_id($this->getId());
+  $mode->setType('info');
+  $mode->setTemplate('dashboard','tile');//template pour le dashboard
+  $mode->setSubType('numeric');
+  $mode->save();
 
   $refresh = $this->getCmd(null, 'refresh');
   if (!is_object($refresh)) {
@@ -219,8 +219,8 @@ class jeestrompiCmd extends cmd {
     switch ($this->getLogicalId()) { //vérifie le logicalid de la commande
     case 'refresh': // LogicalId de la commande rafraîchir que l’on a créé dans la méthode Postsave de la classe vdm .
      log::add('jeestrompi', 'info', 'mise a jour story');
-     $info = $eqlogic->randomVdm(); //On lance la fonction randomVdm() pour récupérer une vdm et on la stocke dans la variable $info
-     /*$info = 123456;*/
+     /*$info = $eqlogic->randomVdm(); //On lance la fonction randomVdm() pour récupérer une vdm et on la stocke dans la variable $info*/
+     $info = 12;
      $eqlogic->checkAndUpdateCmd('story', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
     break;
     }
