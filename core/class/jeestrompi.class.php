@@ -67,7 +67,8 @@ class jeestrompi extends eqLogic {
     $dom->loadHTML($data);
     libxml_use_internal_errors(false);
     $xpath = new DOMXPath($dom);
-    $divs = $xpath->query('//article[@class="art-panel col-xs-12"]//div[@class="panel-content"]//p//a');
+    $divs = $xpath->query('//a[@class="block text-blue-500 dark:text-white my-4 "][1]');
+    /*return $xpath;*/
     return $divs[0]->nodeValue ;
   }
   /*
@@ -152,7 +153,6 @@ class jeestrompi extends eqLogic {
   $info->setTemplate('dashboard','tile');//template pour le dashboard
   $info->setSubType('string');
   $info->save();
-
 
   $refresh = $this->getCmd(null, 'refresh');
   if (!is_object($refresh)) {
