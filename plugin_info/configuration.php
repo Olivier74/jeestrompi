@@ -44,5 +44,13 @@ if (!isConnect()) {
         <input class="configKey form-control" data-l1key="strompiserialbaud"/>
       </div>
     </div>
+	<div class="form-group">
+      <label class="col-md-4 control-label">{{port d\'écoute}}
+        <sup><i class="fas fa-question-circle tooltips" title="{{Renseignez le port d\'écoute du daemon}}"></i></sup>
+      </label>
+      <div class="col-md-4">
+        <input class="configKey form-control" data-l1key="strompidsocketport"/>
+      </div>
+    </div>
   </fieldset>
 </form>

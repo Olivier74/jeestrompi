@@ -34,13 +34,31 @@ class jeestrompi extends eqLogic {
   */
 
   /*     * ***********************Methode static*************************** */
-	public static function dependancy_info() {
+	 public static function deamon_info() {
         $return = array();
-        $return['progress_file'] = jeedom::getTmpFolder('jeestrompi') . '/dependance';
-        if (exec(system::getCmdSudo() . system::get('cmd_check') . '-E "python\-serial|python\-request" | wc -l') >= 3) {
-            $return['state'] = 'ok';
-        } else {
-            $return['state'] = 'nok';
+        $return['log'] = __CLASS__;
+        $return['state'] = 'nok';
+        $pid_file = jeedom::getTmpFolder(__CLASS__) . '/jeestrompid.pid';
+        if (file_exists($pid_file)) {
+            if (@posix_getsid(trim(file_get_contents($pid_file)))) {
+                $return['state'] = 'ok';
+            } else {
+                shell_exec(system::getCmdSudo() . 'rm -rf ' . $pid_file . ' 2>&1 > /dev/null');
+            }
+        }
+        $return['launchable'] = 'ok';
+        $strompiserialport = config::byKey('strompiserialport', __CLASS__); // exemple si votre démon à besoin de la config user,
+        $strompiserialbaud = config::byKey('strompiserialbaud', __CLASS__); // password,
+        $strompidsocketport = config::byKey('strompidsocketport', __CLASS__); // et clientId
+        if ($strompiserialport == '') {
+            $return['launchable'] = 'nok';
+            $return['launchable_message'] = __('Le port serie n\'est pas configuré', __FILE__);
+        } elseif ($strompiserialbaud == '') {
+            $return['launchable'] = 'nok';
+            $return['launchable_message'] = __('La vitesse n\'est pas configuré', __FILE__);
+        } elseif ($strompidsocketport == '') {
+            $return['launchable'] = 'nok';
+            $return['launchable_message'] = __('Le port d\'ecoute n\'est pas configurée', __FILE__);
         }
         return $return;
     }
@@ -50,65 +68,51 @@ class jeestrompi extends eqLogic {
         return array('script' => dirname(__FILE__) . '/../../resources/install_#stype#.sh ' . jeedom::getTmpFolder('jeestrompi') . '/dependance', 'log' => log::getPathToLog(__CLASS__ . '_update'));
     }
 
-    public static function deamon_info() {
-        $return = array();
-        $return['log'] = 'jeestrompi';
-        $return['state'] = 'nok';
-        $pid_file = jeedom::getTmpFolder('jeestrompi') . '/deamon.pid';
-        if (file_exists($pid_file)) {
-            $pid = trim(file_get_contents($pid_file));
-            if (is_numeric($pid) && posix_getsid($pid)) {
-                $return['state'] = 'ok';
-            } else {
-                shell_exec(system::getCmdSudo() . 'rm -rf ' . $pid_file . ' 2>&1 > /dev/null;rm -rf ' . $pid_file . ' 2>&1 > /dev/null;');
-            }
-        }
-        $return['launchable'] = 'ok';
-        return $return;
-    }
-	
-	 public static function deamon_start() {
+    
+	public static function deamon_start() {
         self::deamon_stop();
         $deamon_info = self::deamon_info();
         if ($deamon_info['launchable'] != 'ok') {
             throw new Exception(__('Veuillez vérifier la configuration', __FILE__));
         }
-		$path = realpath(dirname(__FILE__) . '/../../resources/demond'); // répertoire du démon à modifier
-		$cmd = 'python3 ' . $path . '/jeestrompyd.py'; // nom du démon à modifier
-		$cmd .= ' --loglevel ' . log::convertLogLevel(log::getLogLevel(__CLASS__));
-		$cmd .= ' --socketport ' . config::byKey('socketport', __CLASS__, '55009'); // port par défaut à modifier
-		$cmd .= ' --callback ' . network::getNetworkAccess('internal', 'http:127.0.0.1:port:comp') . '/plugins/template/core/php/jeeTemplate.php'; // chemin de la callback url à modifier (voir ci-dessous)
-		$cmd .= ' --user "' . trim(str_replace('"', '\"', config::byKey('user', __CLASS__))) . '"'; // on rajoute les paramètres utiles à votre démon, ici user
-		$cmd .= ' --pswd "' . trim(str_replace('"', '\"', config::byKey('password', __CLASS__))) . '"'; // et password
-		$cmd .= ' --apikey ' . jeedom::getApiKey(__CLASS__); // l'apikey pour authentifier les échanges suivants
-		$cmd .= ' --pid ' . jeedom::getTmpFolder (__ CLASS__) . '/deamon.pid'; // et on précise le chemin vers le pid file (ne pas modifier)
-		log::add (__ CLASS__, 'info', 'Launch daemon jeestrompyd.py');
-		$result = exec($cmd . ' >> ' . log::getPathToLog('jeestrompi') . ' 2>&1 &'); // 'jeestrompi' est le nom du log pour votre démon, vous devez nommer votre log en commençant par le pluginid pour que le fichier apparaisse dans la page de config
-		$i = 0;
-		while ($ i <20) {
-			$deamon_info = self::deamon_info();
-			if ($ deamon_info ['state'] == 'ok') {
-				break;
-			}
-			sleep(1);
-			$i++;
-		}
-		if ($ i> = 30) {
-			log::add (__ CLASS__, 'error', __ ('Unable to start daemon, check log', __FILE__), 'unableStartDeamon');
-			return false;
-		}
-		message::removeAll (__ CLASS__, 'unableStartDeamon');
-		return true;
+
+        $path = realpath(dirname(__FILE__) . '/../../resources/demond'); // répertoire du démon à modifier
+        $cmd = 'python3 ' . $path . '/jeestrompyd.py'; // nom du démon à modifier
+        $cmd .= ' --loglevel ' . log::convertLogLevel(log::getLogLevel(__CLASS__));
+        $cmd .= ' --socketport ' . config::byKey('strompidsocketport', __CLASS__, '55009'); // port par défaut à modifier
+        $cmd .= ' --callback ' . network::getNetworkAccess('internal', 'http:127.0.0.1:port:comp') . '/plugins/jeestrompi/core/php/jeestrompi.php'; // chemin de la callback url à modifier (voir ci-dessous)
+        $cmd .= ' --user "' . trim(str_replace('"', '\"', config::byKey('user', __CLASS__))) . '"'; // on rajoute les paramètres utiles à votre démon, ici user
+        $cmd .= ' --pswd "' . trim(str_replace('"', '\"', config::byKey('password', __CLASS__))) . '"'; // et password
+        $cmd .= ' --apikey ' . jeedom::getApiKey(__CLASS__); // l'apikey pour authentifier les échanges suivants
+        $cmd .= ' --pid ' . jeedom::getTmpFolder(__CLASS__) . '/jeestrompyd.pid'; // et on précise le chemin vers le pid file (ne pas modifier)
+        log::add(__CLASS__, 'info', 'Lancement démon');
+        $result = exec($cmd . ' >> ' . log::getPathToLog('jeestrompyd') . ' 2>&1 &'); // 'template_daemon' est le nom du log pour votre démon, vous devez nommer votre log en commençant par le pluginid pour que le fichier apparaisse dans la page de config
+        $i = 0;
+        while ($i < 20) {
+            $deamon_info = self::deamon_info();
+            if ($deamon_info['state'] == 'ok') {
+                break;
+            }
+            sleep(1);
+            $i++;
+        }
+        if ($i >= 30) {
+            log::add(__CLASS__, 'error', __('Impossible de lancer le démon, vérifiez le log', __FILE__), 'unableStartDeamon');
+            return false;
+        }
+        message::removeAll(__CLASS__, 'unableStartDeamon');
+        return true;
     }
+
 	
 	public static function deamon_stop() {
-        $pid_file = jeedom::getTmpFolder('jeestrompi') . '/deamon.pid';
+        $pid_file = jeedom::getTmpFolder('jeestrompi') . '/jeestrompyd.pid';
         if (file_exists($pid_file)) {
             $pid = intval(trim(file_get_contents($pid_file)));
             system::kill($pid);
         }
         system::kill('jeestrompyd.py');
-        system::fuserk(config::byKey('socketport', 'jeestrompi'));
+        system::fuserk(config::byKey('strompidsocketport', 'jeestrompi'));
         sleep(1);
     }
   /*
