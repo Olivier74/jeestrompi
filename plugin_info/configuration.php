@@ -29,10 +29,11 @@ if (!isConnect()) {
         <sup><i class="fas fa-question-circle tooltips" title="{{Renseignez le port de communication de la carte StromPi}}"></i></sup>
       </label>
       <div class="col-md-4">
-        <input class="configKey form-control" data-l1key="param1"/>
+        <select class="configKey form-control" data-l1key="strompiserialport"/>
 		<option value=""></option>
-          <option value="value1">/dev/serial0</option>
-          <option value="value2">/dev/serial1</option>
+          <option value="/dev/serial0" selected>/dev/serial0</option>
+          <option value="/dev/serial1">/dev/serial1</option>
+         </select>
       </div>
     </div>
     <div class="form-group">
@@ -40,7 +41,7 @@ if (!isConnect()) {
         <sup><i class="fas fa-question-circle tooltips" title="{{Renseignez la vitesse du port de la carte StromPi}}"></i></sup>
       </label>
       <div class="col-md-4">
-        <input class="configKey form-control" data-l1key="param2"/>
+        <input class="configKey form-control" data-l1key="strompiserialbaud"/>
       </div>
     </div>
   </fieldset>

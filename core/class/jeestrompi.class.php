@@ -41,9 +41,38 @@ class jeestrompi extends eqLogic {
   */
 
   /*
+  
   * Fonction exécutée automatiquement toutes les 5 minutes par Jeedom
   public static function cron5() {}
   */
+	public static function cron() {
+		$dateRun = new DateTime();
+        log::add('jeestrompi', 'info', 'start autorefresh ');
+		foreach (eqLogic::byType('jeestrompi') as $eqLogic) {
+			$autorefresh = $eqLogic->getConfiguration('autorefresh');
+            log::add('jeestrompi', 'info', 'autorefresh value = '.$autorefresh);
+			if ($autorefresh != '') {
+				try {
+					$c = new Cron\CronExpression(checkAndFixCron($autorefresh), new Cron\FieldFactory);
+					if ($c->isDue()) {
+						$eqLogic->refresh();
+					}
+				} catch (Exception $exc) {
+					log::add('jeestrompi', 'error', __('Expression cron non valide pour', __FILE__) . ' ' . $eqLogic->getHumanName() . ' : ' . $autorefresh);
+				}
+			}
+		}
+	}
+  
+   public function refresh() {
+		foreach ($this->getCmd('info') as $cmd) {
+			try {
+				$cmd->refresh();
+			} catch (Exception $exc) {
+				log::add('jeestrompi', 'error', __('Erreur pour ', __FILE__) . $cmd->getHumanName() . ' : ' . $exc->getMessage());
+			}
+		}
+	}
 
   /*
   * Fonction exécutée automatiquement toutes les 10 minutes par Jeedom
@@ -71,20 +100,52 @@ class jeestrompi extends eqLogic {
     /*return $xpath;*/
     return $divs[0]->nodeValue ;
   }
+  
+  public function strompiquerrry() {
+    $plugin = plugin::byId('jeestrompi');
+    $strompiserialport = config::byKey("strompiserialport", 'jeestrompi');
+    $strompiserialbaud = config::byKey("strompiserialbaud", 'jeestrompi');
+    /*$strompiserialport = $plugin->getConfiguration("strompiserialport", "/dev/serial0");
+    $strompiserialbaud = $plugin->getConfiguration("strompiserialbaud", "38400");*/
+    log::add('jeestrompi', 'info', 'config strompi serial : '.$strompiserialport.'  - '.$strompiserialbaud.' bauds');
+    $output=shell_exec('python3 /var/www/html/plugins/jeestrompi/data/StromPi3_Status_jeedom.py 2>&1');
+    list($StromPiMode, $StromPiLifePo4V, $StromPiLifePo4Charge, $StromPiWide, $StromPiUSB, $StromPiOutput) = explode("|", $output);
+    if ($StromPiWide == '')
+    {
+      $StromPiWide=0;
+    }
+    if ($StromPiMode == '')
+    {
+      $StromPiMode=-1;
+    }
+    if ($StromPiLifePo4V == '')
+    {
+      $StromPiLifePo4V=-1;
+    }
+    if ($StromPiLifePo4Charge == '')
+    {
+      $StromPiLifePo4Charge=-1;
+    }else {
+      $vowels = array("]", "[", "(", ")");
+      $StromPiLifePo4Charge=str_replace("]", " ",$StromPiLifePo4Charge);
+      $StromPiLifePo4Charge=str_replace($vowels, "",$StromPiLifePo4Charge);
+    }
+    if ($StromPiWide == '')
+    {
+      $StromPiWide=-1;
+    }
+    if ($StromPiUSB == '')
+    {
+      $StromPiUSB=-1;
+    }
+    $strompiarray = array($StromPiMode,$StromPiLifePo4V,$StromPiWide,$StromPiUSB,$StromPiLifePo4Charge,$StromPiOutput);
+    return $strompiarray;
+  }
   /*
   * Fonction exécutée automatiquement toutes les heures par Jeedom
   public static function cronHourly() {}
   */
-  public static function cronHourly () {
-    foreach (self::byType('jeestrompi', true) as $jeestrompi) { //parcours tous les équipements actifs du plugin vdm
-      $cmd = $jeestrompi->getCmd(null, 'refresh'); //retourne la commande "refresh" si elle existe
-      if (!is_object($cmd)) { //Si la commande n'existe pas
-      continue; //continue la boucle
-    }
-    $cmd->execCmd(); //la commande existe on la lance
-    }
-  }
-
+  
   /*
   * Fonction exécutée automatiquement tous les jours par Jeedom
   public static function cronDaily() {}
@@ -132,7 +193,7 @@ class jeestrompi extends eqLogic {
 
   // Fonction exécutée automatiquement après la mise à jour de l'équipement
   public function postUpdate() {
-    /*self::cronHourly($this->getId()); //lance la fonction cronHourly avec l’id de l’eqLogic*/
+   /*self::cronHourly($this->getId()); //lance la fonction cronHourly avec l’id de l’eqLogic*/
   }
 
 
@@ -278,20 +339,21 @@ class jeestrompiCmd extends cmd {
     $eqlogic = $this->getEqLogic(); //récupère l'éqlogic de la commande $this
     switch ($this->getLogicalId()) { //vérifie le logicalid de la commande
     case 'refresh': // LogicalId de la commande rafraîchir que l’on a créé dans la méthode Postsave de la classe vdm .
-     log::add('jeestrompi', 'info', 'mise a jour story');
+     log::add('jeestrompi', 'info', 'mise a jour des valeurs de la carte strompi');
+     $strompiTab = $eqlogic->strompiquerrry();
      /*$info = $eqlogic->randomVdm(); //On lance la fonction randomVdm() pour récupérer une vdm et on la stocke dans la variable $info*/
-     $info = random_int(1, 6);
+     $info = $strompiTab[0];
      $eqlogic->checkAndUpdateCmd('strompimode', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
-	 $info = random_int(0, 3.5);
+	 $info = $strompiTab[1];
      $eqlogic->checkAndUpdateCmd('StromPiLifePo4', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
-	 $info = random_int(1, 24);
+	 $info = $strompiTab[2];
      $eqlogic->checkAndUpdateCmd('StromPiWide', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
-	 $info = random_int(1, 5);
+	 $info = $strompiTab[3];
      $eqlogic->checkAndUpdateCmd('StromPiUSB', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
-	 $info = random_int(1, 5);
-     $eqlogic->checkAndUpdateCmd('StromPiOuput', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
-	 $info = random_int(1, 5);
+	 $info = $strompiTab[4];
      $eqlogic->checkAndUpdateCmd('StromPiLifePo4Charge', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
+	 $info = $strompiTab[5];
+     $eqlogic->checkAndUpdateCmd('StromPiOutput', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
     break;
     }
 }
