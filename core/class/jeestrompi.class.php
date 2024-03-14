@@ -189,7 +189,30 @@ class jeestrompi extends eqLogic {
   $StromPiUSB->setTemplate('dashboard','tile');//template pour le dashboard
   $StromPiUSB->setSubType('numeric');
   $StromPiUSB->save();
+  
+  $StromPiOutput = $this->getCmd(null, 'StromPiOutput');
+  if (!is_object($StromPiOutput)) {
+    $StromPiOutput = new jeestrompiCmd();
+    $StromPiOutput->setName(__('Strompi Output', __FILE__));
+  }
+  $StromPiOutput->setLogicalId('StromPiOutput');
+  $StromPiOutput->setEqLogic_id($this->getId());
+  $StromPiOutput->setType('info');
+  $StromPiOutput->setTemplate('dashboard','tile');//template pour le dashboard
+  $StromPiOutput->setSubType('numeric');
+  $StromPiOutput->save();
 
+  $StromPiLifePo4Charge = $this->getCmd(null, 'StromPiLifePo4Charge');
+  if (!is_object($StromPiLifePo4Charge)) {
+    $StromPiLifePo4Charge = new jeestrompiCmd();
+    $StromPiLifePo4Charge->setName(__('Strompi LifePo4Charge', __FILE__));
+  }
+  $StromPiLifePo4Charge->setLogicalId('StromPiLifePo4Charge');
+  $StromPiLifePo4Charge->setEqLogic_id($this->getId());
+  $StromPiLifePo4Charge->setType('info');
+  $StromPiLifePo4Charge->setTemplate('dashboard','tile');//template pour le dashboard
+  $StromPiLifePo4Charge->setSubType('string');
+  $StromPiLifePo4Charge->save();
 
   $refresh = $this->getCmd(null, 'refresh');
   if (!is_object($refresh)) {
@@ -265,6 +288,10 @@ class jeestrompiCmd extends cmd {
      $eqlogic->checkAndUpdateCmd('StromPiWide', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
 	 $info = random_int(1, 5);
      $eqlogic->checkAndUpdateCmd('StromPiUSB', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
+	 $info = random_int(1, 5);
+     $eqlogic->checkAndUpdateCmd('StromPiOuput', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
+	 $info = random_int(1, 5);
+     $eqlogic->checkAndUpdateCmd('StromPiLifePo4Charge', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
     break;
     }
 }
