@@ -203,18 +203,41 @@ class jeestrompi extends eqLogic {
 
   // Fonction exécutée automatiquement après la sauvegarde (création ou mise à jour) de l'équipement
   public function postSave() {
-  $strompimode = $this->getCmd(null, 'strompimode');
-  if (!is_object($strompimode)) {
-    $strompimode = new jeestrompiCmd();
-    $strompimode->setName(__('Strompi Mode', __FILE__));
+  $refresh = $this->getCmd(null, 'refresh');
+  if (!is_object($refresh)) {
+    $refresh = new jeestrompiCmd();
+    $refresh->setName(__('Rafraichir', __FILE__));
   }
-  $strompimode->setLogicalId('strompimode');
-  $strompimode->setEqLogic_id($this->getId());
-  $strompimode->setType('info');
-  $strompimode->setTemplate('dashboard','tile');//template pour le dashboard
-  $strompimode->setSubType('numeric');
-  $strompimode->save();
-  
+  $refresh->setEqLogic_id($this->getId());
+  $refresh->setLogicalId('refresh');
+  $refresh->setType('action');
+  $refresh->setSubType('other');
+  $refresh->save();	  
+ 
+  $StromPiOutput = $this->getCmd(null, 'StromPiOutput');
+  if (!is_object($StromPiOutput)) {
+    $StromPiOutput = new jeestrompiCmd();
+    $StromPiOutput->setName(__('Strompi Output', __FILE__));
+  }
+  $StromPiOutput->setLogicalId('StromPiOutput');
+  $StromPiOutput->setEqLogic_id($this->getId());
+  $StromPiOutput->setType('info');
+  $StromPiOutput->setTemplate('dashboard','tile');//template pour le dashboard
+  $StromPiOutput->setSubType('numeric');
+  $StromPiOutput->save();
+ 
+ $StromPiLifePo4Charge = $this->getCmd(null, 'StromPiLifePo4Charge');
+  if (!is_object($StromPiLifePo4Charge)) {
+    $StromPiLifePo4Charge = new jeestrompiCmd();
+    $StromPiLifePo4Charge->setName(__('Strompi LifePo4Charge', __FILE__));
+  }
+  $StromPiLifePo4Charge->setLogicalId('StromPiLifePo4Charge');
+  $StromPiLifePo4Charge->setEqLogic_id($this->getId());
+  $StromPiLifePo4Charge->setType('info');
+  $StromPiLifePo4Charge->setTemplate('dashboard','tile');//template pour le dashboard
+  $StromPiLifePo4Charge->setSubType('string');
+  $StromPiLifePo4Charge->save();
+ 
   $StromPiLifePo4 = $this->getCmd(null, 'StromPiLifePo4');
   if (!is_object($StromPiLifePo4)) {
     $StromPiLifePo4 = new jeestrompiCmd();
@@ -226,18 +249,6 @@ class jeestrompi extends eqLogic {
   $StromPiLifePo4->setTemplate('dashboard','tile');//template pour le dashboard
   $StromPiLifePo4->setSubType('numeric');
   $StromPiLifePo4->save();
-
-  $StromPiWide = $this->getCmd(null, 'StromPiWide');
-  if (!is_object($StromPiWide)) {
-    $StromPiWide = new jeestrompiCmd();
-    $StromPiWide->setName(__('Strompi Wide', __FILE__));
-  }
-  $StromPiWide->setLogicalId('StromPiWide');
-  $StromPiWide->setEqLogic_id($this->getId());
-  $StromPiWide->setType('info');
-  $StromPiWide->setTemplate('dashboard','tile');//template pour le dashboard
-  $StromPiWide->setSubType('numeric');
-  $StromPiWide->save();
 
   $StromPiUSB = $this->getCmd(null, 'StromPiUSB');
   if (!is_object($StromPiUSB)) {
@@ -251,40 +262,29 @@ class jeestrompi extends eqLogic {
   $StromPiUSB->setSubType('numeric');
   $StromPiUSB->save();
   
-  $StromPiOutput = $this->getCmd(null, 'StromPiOutput');
-  if (!is_object($StromPiOutput)) {
-    $StromPiOutput = new jeestrompiCmd();
-    $StromPiOutput->setName(__('Strompi Output', __FILE__));
+  $StromPiWide = $this->getCmd(null, 'StromPiWide');
+  if (!is_object($StromPiWide)) {
+    $StromPiWide = new jeestrompiCmd();
+    $StromPiWide->setName(__('Strompi Wide', __FILE__));
   }
-  $StromPiOutput->setLogicalId('StromPiOutput');
-  $StromPiOutput->setEqLogic_id($this->getId());
-  $StromPiOutput->setType('info');
-  $StromPiOutput->setTemplate('dashboard','tile');//template pour le dashboard
-  $StromPiOutput->setSubType('numeric');
-  $StromPiOutput->save();
-
-  $StromPiLifePo4Charge = $this->getCmd(null, 'StromPiLifePo4Charge');
-  if (!is_object($StromPiLifePo4Charge)) {
-    $StromPiLifePo4Charge = new jeestrompiCmd();
-    $StromPiLifePo4Charge->setName(__('Strompi LifePo4Charge', __FILE__));
+  $StromPiWide->setLogicalId('StromPiWide');
+  $StromPiWide->setEqLogic_id($this->getId());
+  $StromPiWide->setType('info');
+  $StromPiWide->setTemplate('dashboard','tile');//template pour le dashboard
+  $StromPiWide->setSubType('numeric');
+  $StromPiWide->save();
+  
+  $strompimode = $this->getCmd(null, 'strompimode');
+  if (!is_object($strompimode)) {
+    $strompimode = new jeestrompiCmd();
+    $strompimode->setName(__('Strompi Mode', __FILE__));
   }
-  $StromPiLifePo4Charge->setLogicalId('StromPiLifePo4Charge');
-  $StromPiLifePo4Charge->setEqLogic_id($this->getId());
-  $StromPiLifePo4Charge->setType('info');
-  $StromPiLifePo4Charge->setTemplate('dashboard','tile');//template pour le dashboard
-  $StromPiLifePo4Charge->setSubType('string');
-  $StromPiLifePo4Charge->save();
-
-  $refresh = $this->getCmd(null, 'refresh');
-  if (!is_object($refresh)) {
-    $refresh = new jeestrompiCmd();
-    $refresh->setName(__('Rafraichir', __FILE__));
-  }
-  $refresh->setEqLogic_id($this->getId());
-  $refresh->setLogicalId('refresh');
-  $refresh->setType('action');
-  $refresh->setSubType('other');
-  $refresh->save();
+  $strompimode->setLogicalId('strompimode');
+  $strompimode->setEqLogic_id($this->getId());
+  $strompimode->setType('info');
+  $strompimode->setTemplate('dashboard','tile');//template pour le dashboard
+  $strompimode->setSubType('numeric');
+  $strompimode->save();
   }
 
   // Fonction exécutée automatiquement avant la suppression de l'équipement
