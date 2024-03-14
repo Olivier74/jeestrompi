@@ -108,7 +108,7 @@ class jeestrompi extends eqLogic {
     /*$strompiserialport = $plugin->getConfiguration("strompiserialport", "/dev/serial0");
     $strompiserialbaud = $plugin->getConfiguration("strompiserialbaud", "38400");*/
     log::add('jeestrompi', 'info', 'config strompi serial : '.$strompiserialport.'  - '.$strompiserialbaud.' bauds');
-    $output=shell_exec('python3 /var/www/html/plugins/jeestrompi/data/StromPi3_Status_jeedom.py 2>&1');
+    $output=shell_exec('python3 /var/www/html/plugins/jeestrompi/resources/StromPi3_Status_jeedom.py 2>&1');
     list($StromPiMode, $StromPiLifePo4V, $StromPiLifePo4Charge, $StromPiWide, $StromPiUSB, $StromPiOutput) = explode("|", $output);
     if ($StromPiWide == '')
     {
