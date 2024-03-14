@@ -178,7 +178,6 @@ class jeestrompi extends eqLogic {
   $StromPiWide->setSubType('numeric');
   $StromPiWide->save();
 
-
   $refresh = $this->getCmd(null, 'refresh');
   if (!is_object($refresh)) {
     $refresh = new jeestrompiCmd();
