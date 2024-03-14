@@ -38,7 +38,7 @@ class jeestrompi extends eqLogic {
         $return = array();
         $return['log'] = __CLASS__;
         $return['state'] = 'nok';
-        $pid_file = jeedom::getTmpFolder(__CLASS__) . '/jeestrompid.pid';
+        $pid_file = jeedom::getTmpFolder(__CLASS__) . '/deamon.pid';
         if (file_exists($pid_file)) {
             if (@posix_getsid(trim(file_get_contents($pid_file)))) {
                 $return['state'] = 'ok';
@@ -81,10 +81,10 @@ class jeestrompi extends eqLogic {
         $cmd .= ' --loglevel ' . log::convertLogLevel(log::getLogLevel(__CLASS__));
         $cmd .= ' --socketport ' . config::byKey('strompidsocketport', __CLASS__, '55009'); // port par défaut à modifier
         $cmd .= ' --callback ' . network::getNetworkAccess('internal', 'http:127.0.0.1:port:comp') . '/plugins/jeestrompi/core/php/jeestrompi.php'; // chemin de la callback url à modifier (voir ci-dessous)
-        $cmd .= ' --user "' . trim(str_replace('"', '\"', config::byKey('user', __CLASS__))) . '"'; // on rajoute les paramètres utiles à votre démon, ici user
-        $cmd .= ' --pswd "' . trim(str_replace('"', '\"', config::byKey('password', __CLASS__))) . '"'; // et password
+        $cmd .= ' --serialport ' . config::byKey('strompiserialport', __CLASS__, '/dev/serial0');
+        $cmd .= ' --serialbaud ' . config::byKey('strompiserialbaud', __CLASS__, '/dev/serial0');
         $cmd .= ' --apikey ' . jeedom::getApiKey(__CLASS__); // l'apikey pour authentifier les échanges suivants
-        $cmd .= ' --pid ' . jeedom::getTmpFolder(__CLASS__) . '/jeestrompyd.pid'; // et on précise le chemin vers le pid file (ne pas modifier)
+        $cmd .= ' --pid ' . jeedom::getTmpFolder(__CLASS__) . '/deamon.pid'; // et on précise le chemin vers le pid file (ne pas modifier)
         log::add(__CLASS__, 'info', 'Lancement démon');
         $result = exec($cmd . ' >> ' . log::getPathToLog('jeestrompyd') . ' 2>&1 &'); // 'template_daemon' est le nom du log pour votre démon, vous devez nommer votre log en commençant par le pluginid pour que le fichier apparaisse dans la page de config
         $i = 0;
@@ -106,7 +106,7 @@ class jeestrompi extends eqLogic {
 
 	
 	public static function deamon_stop() {
-        $pid_file = jeedom::getTmpFolder('jeestrompi') . '/jeestrompyd.pid';
+        $pid_file = jeedom::getTmpFolder('jeestrompi') . '/deamon.pid';
         if (file_exists($pid_file)) {
             $pid = intval(trim(file_get_contents($pid_file)));
             system::kill($pid);

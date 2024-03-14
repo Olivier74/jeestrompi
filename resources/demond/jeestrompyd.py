@@ -93,17 +93,17 @@ _cycle = 0.3
 
 parser = argparse.ArgumentParser(
     description='Desmond Daemon for Jeedom plugin')
-parser.add_argument("--device", help="Device", type=str)
+parser.add_argument("--serialport", help="serial port", type=str)
 parser.add_argument("--loglevel", help="Log Level for the daemon", type=str)
 parser.add_argument("--callback", help="Callback", type=str)
 parser.add_argument("--apikey", help="Apikey", type=str)
-parser.add_argument("--cycle", help="Cycle to send event", type=str)
+parser.add_argument("--serialbaud", help="Cycle to send event", type=str)
 parser.add_argument("--pid", help="Pid file", type=str)
-parser.add_argument("--socketport", help="Port for Zigbee server", type=str)
+parser.add_argument("--socketport", help="Port for jeestrompi server", type=str)
 args = parser.parse_args()
 
-if args.device:
-	_device = args.device
+if args.serialport:
+	_serialport = args.serialport
 if args.loglevel:
     _log_level = args.loglevel
 if args.callback:
@@ -112,8 +112,8 @@ if args.apikey:
     _apikey = args.apikey
 if args.pid:
     _pidfile = args.pid
-if args.cycle:
-    _cycle = float(args.cycle)
+if args.serialbaud:
+    _serialbaud = float(args.serialbaud)
 if args.socketport:
 	_socketport = args.socketport
 
@@ -127,7 +127,7 @@ logging.info('Socket port: %s', _socket_port)
 logging.info('Socket host: %s', _socket_host)
 logging.info('PID file: %s', _pidfile)
 logging.info('Apikey: %s', _apikey)
-logging.info('Device: %s', _device)
+logging.info('serialport: %s', _serialport)
 
 signal.signal(signal.SIGINT, handler)
 signal.signal(signal.SIGTERM, handler)
