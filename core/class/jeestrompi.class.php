@@ -181,7 +181,7 @@ class jeestrompi extends eqLogic {
   $StromPiUSB = $this->getCmd(null, 'StromPiUSB');
   if (!is_object($StromPiUSB)) {
     $StromPiUSB = new jeestrompiCmd();
-    $StromPiUSB->setName(__('Strompi Wide', __FILE__));
+    $StromPiUSB->setName(__('Strompi USB', __FILE__));
   }
   $StromPiUSB->setLogicalId('StromPiUSB');
   $StromPiUSB->setEqLogic_id($this->getId());
