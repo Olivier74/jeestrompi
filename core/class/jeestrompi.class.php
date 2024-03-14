@@ -142,17 +142,42 @@ class jeestrompi extends eqLogic {
 
   // Fonction exécutée automatiquement après la sauvegarde (création ou mise à jour) de l'équipement
   public function postSave() {
-  $mode = $this->getCmd(null, 'mode');
-  if (!is_object($mode)) {
-    $mode = new jeestrompiCmd();
-    $mode->setName(__('Strompi Mode', __FILE__));
+  $strompimode = $this->getCmd(null, 'strompimode');
+  if (!is_object($strompimode)) {
+    $strompimode = new jeestrompiCmd();
+    $strompimode->setName(__('Strompi Mode', __FILE__));
   }
-  $mode->setLogicalId('mode');
-  $mode->setEqLogic_id($this->getId());
-  $mode->setType('info');
-  $mode->setTemplate('dashboard','tile');//template pour le dashboard
-  $mode->setSubType('numeric');
-  $mode->save();
+  $strompimode->setLogicalId('strompimode');
+  $strompimode->setEqLogic_id($this->getId());
+  $strompimode->setType('info');
+  $strompimode->setTemplate('dashboard','tile');//template pour le dashboard
+  $strompimode->setSubType('numeric');
+  $strompimode->save();
+  
+  $StromPiLifePo4 = $this->getCmd(null, 'StromPiLifePo4');
+  if (!is_object($StromPiLifePo4)) {
+    $StromPiLifePo4 = new jeestrompiCmd();
+    $StromPiLifePo4->setName(__('Strompi LifePo4', __FILE__));
+  }
+  $StromPiLifePo4->setLogicalId('StromPiLifePo4');
+  $StromPiLifePo4->setEqLogic_id($this->getId());
+  $StromPiLifePo4->setType('info');
+  $StromPiLifePo4->setTemplate('dashboard','tile');//template pour le dashboard
+  $StromPiLifePo4->setSubType('numeric');
+  $StromPiLifePo4->save();
+
+  $StromPiWide = $this->getCmd(null, 'StromPiWide');
+  if (!is_object($StromPiWide)) {
+    $StromPiWide = new jeestrompiCmd();
+    $StromPiWide->setName(__('Strompi LifePo4', __FILE__));
+  }
+  $StromPiWide->setLogicalId('StromPiWide');
+  $StromPiWide->setEqLogic_id($this->getId());
+  $StromPiWide->setType('info');
+  $StromPiWide->setTemplate('dashboard','tile');//template pour le dashboard
+  $StromPiWide->setSubType('numeric');
+  $StromPiWide->save();
+
 
   $refresh = $this->getCmd(null, 'refresh');
   if (!is_object($refresh)) {
@@ -221,7 +246,7 @@ class jeestrompiCmd extends cmd {
      log::add('jeestrompi', 'info', 'mise a jour story');
      /*$info = $eqlogic->randomVdm(); //On lance la fonction randomVdm() pour récupérer une vdm et on la stocke dans la variable $info*/
      $info = 12;
-     $eqlogic->checkAndUpdateCmd('story', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
+     $eqlogic->checkAndUpdateCmd('strompimode', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
     break;
     }
 }
