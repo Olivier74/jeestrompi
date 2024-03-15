@@ -83,6 +83,7 @@ class jeestrompi extends eqLogic {
         $cmd .= ' --callback ' . network::getNetworkAccess('internal', 'http:127.0.0.1:port:comp') . '/plugins/jeestrompi/core/php/jeestrompi.php'; // chemin de la callback url à modifier (voir ci-dessous)
         $cmd .= ' --serialport ' . config::byKey('strompiserialport', __CLASS__, '/dev/serial0');
         $cmd .= ' --serialbaud ' . config::byKey('strompiserialbaud', __CLASS__, '38400');
+		$cmd .= ' --cycle' . config::byKey('jeestrompicycle', __CLASS__, '0.3');
         $cmd .= ' --apikey ' . jeedom::getApiKey(__CLASS__); // l'apikey pour authentifier les échanges suivants
         $cmd .= ' --pid ' . jeedom::getTmpFolder(__CLASS__) . '/deamon.pid'; // et on précise le chemin vers le pid file (ne pas modifier)
         log::add(__CLASS__, 'info', 'Lancement démon');
