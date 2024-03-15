@@ -45,7 +45,7 @@ if (!isConnect()) {
       </div>
     </div>
 	<div class="form-group">
-      <label class="col-md-4 control-label">{{port d\'écoute}}
+      <label class="col-md-4 control-label">{{port écoute}}
         <sup><i class="fas fa-question-circle tooltips" title="{{Renseignez le port d\'écoute du daemon (55009 par defaut)}}"></i></sup>
       </label>
       <div class="col-md-4">
