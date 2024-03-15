@@ -27,12 +27,23 @@ from os.path import join
 import json
 import argparse
 import serial
+import io
 
 try:
 	from jeedom.jeedom import *
 except ImportError:
 	print("Error: importing module jeedom.jeedom")
 	sys.exit(1)
+
+def read_strompi():
+	try:
+		x=ser.readline()
+		y = x.decode(encoding='UTF-8',errors='strict')
+		if y != "":
+			logging.debug('strompi receive: %s',y)
+	except Exception as e:
+		logging.error('Send command to demon error: %s' ,e)
+
 
 def read_socket():
 	global JEEDOM_SOCKET_MESSAGE
@@ -49,13 +60,28 @@ def read_socket():
 
 def listen():
 	jeedom_socket.open()
+	if ser.isOpen(): ser.close()
+	ser.open()
+	ser.write(str.encode('quit'))
+	time.sleep(0.3)
+	ser.write(str.encode('\x0D'))
+	time.sleep(0.3)
+	ser.write(str.encode('date-rpi'))
+	time.sleep(0.3)
+	ser.write(str.encode('\x0D'))
+	data = ser.readline();
+	logging.debug('strompi <<< %s',data)
+	time.sleep(0.3)
+	ser.write(str.encode('time-rpi'))
+	time.sleep(0.3)
+	ser.write(str.encode('\x0D'))
+	data = ser.readline();
+	logging.debug('strompi <<< %s',data)
 	try:
 		while 1:
-			time.sleep(0.5)
+			time.sleep(0.3)
+			read_strompi()
 			read_socket()
-            x=ser.readline()
-            y = x.decode(encoding='UTF-8',errors='strict')
-            logging.debug("Signal %i caught, exiting...", y)
             
 	except KeyboardInterrupt:
 		shutdown()
@@ -149,7 +175,6 @@ ser = serial.Serial(
  bytesize=serial.EIGHTBITS,
  timeout=1
 )
-counter=0
 
 
 try:
@@ -159,4 +184,5 @@ try:
 except Exception as e:
 	logging.error('Fatal error: %s', e)
 	logging.info(traceback.format_exc())
+	ser.close()
 	shutdown()

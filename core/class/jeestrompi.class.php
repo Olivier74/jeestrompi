@@ -87,11 +87,12 @@ class jeestrompi extends eqLogic {
         $cmd .= ' --callback ' . network::getNetworkAccess('internal', 'http:127.0.0.1:port:comp') . '/plugins/jeestrompi/core/php/jeestrompi.php'; // chemin de la callback url à modifier (voir ci-dessous)
         $cmd .= ' --serialport ' . config::byKey('strompiserialport', __CLASS__, '/dev/serial0');
         $cmd .= ' --serialbaud ' . config::byKey('strompiserialbaud', __CLASS__, '38400');
-		$cmd .= ' --cycle' . config::byKey('jeestrompicycle', __CLASS__, '0.3');
+		$cmd .= ' --cycle ' . config::byKey('jeestrompicycle', __CLASS__, '0.3');
         $cmd .= ' --apikey ' . jeedom::getApiKey(__CLASS__); // l'apikey pour authentifier les échanges suivants
         $cmd .= ' --pid ' . jeedom::getTmpFolder(__CLASS__) . '/deamon.pid'; // et on précise le chemin vers le pid file (ne pas modifier)
         log::add(__CLASS__, 'info', 'Lancement démon');
-        $result = exec($cmd . ' >> ' . log::getPathToLog('jeestrompyd') . ' 2>&1 &'); // 'template_daemon' est le nom du log pour votre démon, vous devez nommer votre log en commençant par le pluginid pour que le fichier apparaisse dans la page de config
+      	exec(system::getCmdSudo() . $cmd . ' >> ' . log::getPathToLog('jeestrompid') . ' 2>&1 &');
+        /*$result = exec($cmd . ' >> ' . log::getPathToLog('jeestrompy') . ' 2>&1 &'); // 'template_daemon' est le nom du log pour votre démon, vous devez nommer votre log en commençant par le pluginid pour que le fichier apparaisse dans la page de config*/
         $i = 0;
         while ($i < 20) {
             $deamon_info = self::deamon_info();
@@ -119,6 +120,19 @@ class jeestrompi extends eqLogic {
         system::kill('jeestrompyd.py');
         system::fuserk(config::byKey('strompidsocketport', 'jeestrompi'));
         sleep(1);
+    }
+  
+  public static function sendToDaemon($params) {
+        $deamon_info = self::deamon_info();
+        if ($deamon_info['state'] != 'ok') {
+            throw new Exception("Le démon n'est pas démarré");
+        }
+        $params['apikey'] = jeedom::getApiKey(__CLASS__);
+        $payLoad = json_encode($params);
+        $socket = socket_create(AF_INET, SOCK_STREAM, 0);
+        socket_connect($socket, '127.0.0.1', config::byKey('socketport', __CLASS__, '55009')); //port par défaut de votre plugin à modifier
+        socket_write($socket, $payLoad, strlen($payLoad));
+        socket_close($socket);
     }
   /*
   * Fonction exécutée automatiquement toutes les minutes par Jeedom
@@ -298,6 +312,17 @@ class jeestrompi extends eqLogic {
   $refresh->setSubType('other');
   $refresh->save();	  
  
+    $strompisend = $this->getCmd(null, 'strompisend');
+  if (!is_object($strompisend)) {
+    $strompisend = new jeestrompiCmd();
+    $strompisend->setName(__('Send strompi', __FILE__));
+  }
+  $strompisend->setEqLogic_id($this->getId());
+  $strompisend->setLogicalId('strompisend');
+  $strompisend->setType('action');
+  $strompisend->setSubType('other');
+  $strompisend->save();	  
+    
   $StromPiOutput = $this->getCmd(null, 'StromPiOutput');
   if (!is_object($StromPiOutput)) {
     $StromPiOutput = new jeestrompiCmd();
@@ -455,6 +480,9 @@ class jeestrompiCmd extends cmd {
      $eqlogic->checkAndUpdateCmd('StromPiLifePo4Charge', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
 	 $info = $strompiTab[5];
      $eqlogic->checkAndUpdateCmd('StromPiOutput', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
+    break;
+    case 'strompimode':
+     log::add('jeestrompi', 'info', 'envoi d un message a la  carte strompi');
     break;
     }
 }
