@@ -26,6 +26,7 @@ from optparse import OptionParser
 from os.path import join
 import json
 import argparse
+import serial
 
 try:
 	from jeedom.jeedom import *
@@ -52,6 +53,10 @@ def listen():
 		while 1:
 			time.sleep(0.5)
 			read_socket()
+            x=ser.readline()
+            y = x.decode(encoding='UTF-8',errors='strict')
+            logging.debug("Signal %i caught, exiting...", y)
+            
 	except KeyboardInterrupt:
 		shutdown()
 
@@ -96,6 +101,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument("--serialport", help="serial port", type=str)
 parser.add_argument("--loglevel", help="Log Level for the daemon", type=str)
 parser.add_argument("--callback", help="Callback", type=str)
+parser.add_argument("--cycle", help="Cycle to send event", type=str)
 parser.add_argument("--apikey", help="Apikey", type=str)
 parser.add_argument("--serialbaud", help="Cycle to send event", type=str)
 parser.add_argument("--pid", help="Pid file", type=str)
@@ -112,12 +118,15 @@ if args.apikey:
     _apikey = args.apikey
 if args.pid:
     _pidfile = args.pid
+if args.cycle:
+    _cycle = float(args.cycle)
 if args.serialbaud:
-    _serialbaud = float(args.serialbaud)
+    _serialbaud = int(args.serialbaud)
 if args.socketport:
 	_socketport = args.socketport
 
-_socket_port = int(_socket_port)
+
+_socket_port = int(_socketport)
 
 jeedom_utils.set_log_level(_log_level)
 
@@ -131,6 +140,17 @@ logging.info('serialport: %s', _serialport)
 
 signal.signal(signal.SIGINT, handler)
 signal.signal(signal.SIGTERM, handler)
+
+ser = serial.Serial(
+ port='/dev/serial0',
+ baudrate = 38400,
+ parity=serial.PARITY_NONE,
+ stopbits=serial.STOPBITS_ONE,
+ bytesize=serial.EIGHTBITS,
+ timeout=1
+)
+counter=0
+
 
 try:
 	jeedom_utils.write_pid(str(_pidfile))

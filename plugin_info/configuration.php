@@ -38,7 +38,7 @@ if (!isConnect()) {
     </div>
     <div class="form-group">
       <label class="col-md-4 control-label">{{Vitesse port serie}}
-        <sup><i class="fas fa-question-circle tooltips" title="{{Renseignez la vitesse du port de la carte StromPi}}"></i></sup>
+        <sup><i class="fas fa-question-circle tooltips" title="{{Renseignez la vitesse du port de la carte StromPi (38400 par defaut)}}"></i></sup>
       </label>
       <div class="col-md-4">
         <input class="configKey form-control" data-l1key="strompiserialbaud"/>
@@ -46,10 +46,18 @@ if (!isConnect()) {
     </div>
 	<div class="form-group">
       <label class="col-md-4 control-label">{{port d\'écoute}}
-        <sup><i class="fas fa-question-circle tooltips" title="{{Renseignez le port d\'écoute du daemon}}"></i></sup>
+        <sup><i class="fas fa-question-circle tooltips" title="{{Renseignez le port d\'écoute du daemon (55009 par defaut)}}"></i></sup>
       </label>
       <div class="col-md-4">
         <input class="configKey form-control" data-l1key="strompidsocketport"/>
+      </div>
+    </div>
+	<div class="form-group">
+      <label class="col-md-4 control-label">{{Cycle}}
+        <sup><i class="fas fa-question-circle tooltips" title="{{Renseignez le cycle du daemon (0.3 par defaut)}}"></i></sup>
+      </label>
+      <div class="col-md-4">
+        <input class="configKey form-control" data-l1key="jeestrompicycle"/>
       </div>
     </div>
   </fieldset>
