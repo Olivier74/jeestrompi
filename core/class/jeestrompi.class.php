@@ -47,9 +47,10 @@ class jeestrompi extends eqLogic {
             }
         }
         $return['launchable'] = 'ok';
-        $strompiserialport = config::byKey('strompiserialport', __CLASS__); // exemple si votre démon à besoin de la config user,
-        $strompiserialbaud = config::byKey('strompiserialbaud', __CLASS__); // password,
-        $strompidsocketport = config::byKey('strompidsocketport', __CLASS__); // et clientId
+        $strompiserialport = config::byKey('strompiserialport', __CLASS__); // exemple si votre démon à besoin de la config serial,
+        $strompiserialbaud = config::byKey('strompiserialbaud', __CLASS__); // vitesse,
+        $strompidsocketport = config::byKey('strompidsocketport', __CLASS__); // socket
+		$strompidcycle = config::byKey('jeestrompicycle', __CLASS__); // et cycle
         if ($strompiserialport == '') {
             $return['launchable'] = 'nok';
             $return['launchable_message'] = __('Le port serie n\'est pas configuré', __FILE__);
@@ -59,6 +60,9 @@ class jeestrompi extends eqLogic {
         } elseif ($strompidsocketport == '') {
             $return['launchable'] = 'nok';
             $return['launchable_message'] = __('Le port d\'ecoute n\'est pas configurée', __FILE__);
+        } elseif ($strompidcycle == '') {
+            $return['launchable'] = 'nok';
+            $return['launchable_message'] = __('Le cycle n\'est pas configurée', __FILE__);
         }
         return $return;
     }

@@ -3,7 +3,7 @@
 try {
     require_once dirname(__FILE__) . "/../../../../core/php/core.inc.php";
 
-    if (!jeedom::apiAccess(init('apikey'), 'template')) { //remplacez template par l'id de votre plugin
+    if (!jeedom::apiAccess(init('apikey'), 'jeestrompi')) { //remplacez template par l'id de votre plugin
         echo __('Vous n\'etes pas autorisé à effectuer cette action', __FILE__);
         die();
     }
@@ -21,8 +21,8 @@ try {
     } elseif (isset($result['key2'])) {
         // do something else
     } else {
-        log::add('template', 'error', 'unknown message received from daemon'); //remplacez template par l'id de votre plugin
+        log::add('jeestrompi', 'error', 'unknown message received from daemon'); //remplacez template par l'id de votre plugin
     }
 } catch (Exception $e) {
-    log::add('template', 'error', displayException($e)); //remplacez template par l'id de votre plugin
+    log::add('jeestrompi', 'error', displayException($e)); //remplacez template par l'id de votre plugin
 }
