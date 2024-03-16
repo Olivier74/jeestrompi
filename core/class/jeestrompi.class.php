@@ -124,15 +124,19 @@ class jeestrompi extends eqLogic {
   
   public static function sendToDaemon($params) {
         $deamon_info = self::deamon_info();
+    	log::add(__CLASS__, 'debug', 'sendToDaemon info:'.$deamon_info);
         if ($deamon_info['state'] != 'ok') {
             throw new Exception("Le démon n'est pas démarré");
+          	return false;
         }
         $params['apikey'] = jeedom::getApiKey(__CLASS__);
         $payLoad = json_encode($params);
         $socket = socket_create(AF_INET, SOCK_STREAM, 0);
-        socket_connect($socket, '127.0.0.1', config::byKey('socketport', __CLASS__, '55009')); //port par défaut de votre plugin à modifier
+        socket_connect($socket, '127.0.0.1', config::byKey('strompidsocketport', __CLASS__, '55009')); //port par défaut de votre plugin à modifier
         socket_write($socket, $payLoad, strlen($payLoad));
+    	log::add(__CLASS__, 'debug', 'sendToDaemon send:'.$socket.' '.$payLoad);
         socket_close($socket);
+    	return true;
     }
   /*
   * Fonction exécutée automatiquement toutes les minutes par Jeedom
@@ -447,43 +451,48 @@ class jeestrompiCmd extends cmd {
     $eqlogic = $this->getEqLogic(); //récupère l'éqlogic de la commande $this
     log::add('jeestrompi', 'info', 'Lancement update par '.$this->getLogicalId());
     switch ($this->getLogicalId()) { //vérifie le logicalid de la commande
-    case 'refresh': // LogicalId de la commande rafraîchir que l’on a créé dans la méthode Postsave de la classe vdm .
-     log::add('jeestrompi', 'info', 'mise a jour des valeurs de la carte strompi');
-     $strompiTab = $eqlogic->strompiquerrry();
-     /*$info = $eqlogic->randomVdm(); //On lance la fonction randomVdm() pour récupérer une vdm et on la stocke dans la variable $info*/
-     $info = $strompiTab[0];
-     $eqlogic->checkAndUpdateCmd('strompimode', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
-	 $info = $strompiTab[1];
-     $eqlogic->checkAndUpdateCmd('StromPiLifePo4', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
-	 $info = $strompiTab[2];
-     $eqlogic->checkAndUpdateCmd('StromPiWide', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
-	 $info = $strompiTab[3];
-     $eqlogic->checkAndUpdateCmd('StromPiUSB', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
-	 $info = $strompiTab[4];
-     $eqlogic->checkAndUpdateCmd('StromPiLifePo4Charge', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
-	 $info = $strompiTab[5];
-     $eqlogic->checkAndUpdateCmd('StromPiOutput', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
-    break;
-    case 'strompimode': // LogicalId de la commande rafraîchir que l’on a créé dans la méthode Postsave de la classe vdm .
-     log::add('jeestrompi', 'info', 'mise a jour des valeurs de la carte strompi');
-     $strompiTab = $eqlogic->strompiquerrry();
-     /*$info = $eqlogic->randomVdm(); //On lance la fonction randomVdm() pour récupérer une vdm et on la stocke dans la variable $info*/
-     $info = $strompiTab[0];
-     $eqlogic->checkAndUpdateCmd('strompimode', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
-	 $info = $strompiTab[1];
-     $eqlogic->checkAndUpdateCmd('StromPiLifePo4', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
-	 $info = $strompiTab[2];
-     $eqlogic->checkAndUpdateCmd('StromPiWide', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
-	 $info = $strompiTab[3];
-     $eqlogic->checkAndUpdateCmd('StromPiUSB', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
-	 $info = $strompiTab[4];
-     $eqlogic->checkAndUpdateCmd('StromPiLifePo4Charge', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
-	 $info = $strompiTab[5];
-     $eqlogic->checkAndUpdateCmd('StromPiOutput', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
-    break;
-    case 'strompimode':
-     log::add('jeestrompi', 'info', 'envoi d un message a la  carte strompi');
-    break;
+      case 'strompisend':
+       $object_name = $this->getEqLogic()->getHumanName();     /*$object_id = cmd::byEqLogicId('#[Exterieur][strompi]#')->getId();*/
+       $object_id = $this->getEqLogic_id();
+       $parameter = array('eqlogic' => $object_id,'action' => 'status-rpi');
+       /*$parameter = 'action';*/
+       $eqlogic->sendToDaemon($parameter);
+       log::add('jeestrompi', 'info', 'envoi d un message a la  carte strompi');
+      break;
+      case 'refresh': // LogicalId de la commande rafraîchir que l’on a créé dans la méthode Postsave de la classe vdm .
+       log::add('jeestrompi', 'info', 'mise a jour des valeurs de la carte strompi');
+       /*$strompiTab = $eqlogic->strompiquerrry();*/
+       /*$info = $eqlogic->randomVdm(); //On lance la fonction randomVdm() pour récupérer une vdm et on la stocke dans la variable $info*/
+       $info = $strompiTab[0];
+       $eqlogic->checkAndUpdateCmd('strompimode', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
+       $info = $strompiTab[1];
+       $eqlogic->checkAndUpdateCmd('StromPiLifePo4', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
+       $info = $strompiTab[2];
+       $eqlogic->checkAndUpdateCmd('StromPiWide', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
+       $info = $strompiTab[3];
+       $eqlogic->checkAndUpdateCmd('StromPiUSB', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
+       $info = $strompiTab[4];
+       $eqlogic->checkAndUpdateCmd('StromPiLifePo4Charge', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
+       $info = $strompiTab[5];
+       $eqlogic->checkAndUpdateCmd('StromPiOutput', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
+      break;
+      case 'strompimode': // LogicalId de la commande rafraîchir que l’on a créé dans la méthode Postsave de la classe vdm .
+       log::add('jeestrompi', 'info', 'mise a jour des valeurs de la carte strompi');
+      /* $strompiTab = $eqlogic->strompiquerrry();*/
+       /*$info = $eqlogic->randomVdm(); //On lance la fonction randomVdm() pour récupérer une vdm et on la stocke dans la variable $info*/
+       $info = $strompiTab[0];
+       $eqlogic->checkAndUpdateCmd('strompimode', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
+       $info = $strompiTab[1];
+       $eqlogic->checkAndUpdateCmd('StromPiLifePo4', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
+       $info = $strompiTab[2];
+       $eqlogic->checkAndUpdateCmd('StromPiWide', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
+       $info = $strompiTab[3];
+       $eqlogic->checkAndUpdateCmd('StromPiUSB', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
+       $info = $strompiTab[4];
+       $eqlogic->checkAndUpdateCmd('StromPiLifePo4Charge', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
+       $info = $strompiTab[5];
+       $eqlogic->checkAndUpdateCmd('StromPiOutput', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
+      break;
     }
 }
 

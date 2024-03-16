@@ -27,7 +27,6 @@ from os.path import join
 import json
 import argparse
 import serial
-import io
 
 try:
 	from jeedom.jeedom import *
@@ -47,16 +46,77 @@ def read_strompi():
 
 def read_socket():
 	global JEEDOM_SOCKET_MESSAGE
-	if not JEEDOM_SOCKET_MESSAGE.empty():
-		logging.debug("Message received in socket JEEDOM_SOCKET_MESSAGE")
-		message = json.loads(jeedom_utils.stripped(JEEDOM_SOCKET_MESSAGE.get()))
+	while not JEEDOM_SOCKET_MESSAGE.empty():
+		logging.debug('Message received in socket JEEDOM_SOCKET_MESSAGE')
+		#message = json.loads(jeedom_utils.stripped(JEEDOM_SOCKET_MESSAGE.get()))
+		message = json.loads(JEEDOM_SOCKET_MESSAGE.get().decode('utf-8'))
+		logging.debug('Message received : %s',message)
+		logging.debug('Message action received : %s',message['action'])
 		if message['apikey'] != _apikey:
-			logging.error("Invalid apikey from socket: %s", message)
+			logging.error('Invalid apikey from socket: ' + str(message))
 			return
 		try:
-			print ('read')
+			if message['action'] == 'date-rpi':
+				logging.debug('demande date strompi : %s',message['action'])
+				ser.write(str.encode('date-rpi'))
+				time.sleep(0.3)
+				ser.write(str.encode('\x0D'))
+			elif message['action'] == "status-rpi":
+				logging.debug('demande date strompi : %s',message['action'])
+				ser.write(str.encode('status-rpi'))
+				time.sleep(0.3)
+				ser.write(str.encode('\x0D'))
+				sp3_time = ser.readline(9999);
+				sp3_date = ser.readline(9999);
+				sp3_weekday = ser.readline(9999);
+				sp3_modus = ser.readline(9999);
+				sp3_alarm_enable = ser.readline(9999);
+				sp3_alarm_mode = ser.readline(9999);
+				sp3_alarm_hour = ser.readline(9999);
+				sp3_alarm_min = ser.readline(9999);
+				sp3_alarm_day = ser.readline(9999);
+				sp3_alarm_month = ser.readline(9999);
+				sp3_alarm_weekday = ser.readline(9999);
+				sp3_alarmPoweroff = ser.readline(9999);
+				sp3_alarm_hour_off = ser.readline(9999);
+				sp3_alarm_min_off = ser.readline(9999);
+				sp3_shutdown_enable = ser.readline(9999);
+				sp3_shutdown_time = ser.readline(9999);
+				sp3_warning_enable = ser.readline(9999);
+				sp3_serialLessMode = ser.readline(9999);
+				sp3_intervalAlarm = ser.readline(9999);
+				sp3_intervalAlarmOnTime = ser.readline(9999);
+				sp3_intervalAlarmOffTime = ser.readline(9999);
+				sp3_batLevel_shutdown = ser.readline(9999);
+				sp3_batLevel = ser.readline(9999);
+				sp3_charging = ser.readline(9999);
+				sp3_powerOnButton_enable = ser.readline(9999);
+				sp3_powerOnButton_time = ser.readline(9999);
+				sp3_powersave_enable = ser.readline(9999);
+				sp3_poweroffMode = ser.readline(9999);
+				sp3_poweroff_time_enable = ser.readline(9999);
+				sp3_poweroff_time = ser.readline(9999);
+				sp3_wakeupweekend_enable = ser.readline(9999);
+				sp3_ADC_Wide = float(ser.readline(9999))/1000;
+				sp3_ADC_BAT = float(ser.readline(9999))/1000;
+				sp3_ADC_USB = float(ser.readline(9999))/1000;
+				sp3_ADC_OUTPUT = float(ser.readline(9999))/1000;
+				sp3_output_status = ser.readline(9999);
+				sp3_powerfailure_counter = ser.readline(9999);
+				sp3_firmwareVersion = ser.readline(9999);
+				logging.debug('eqlogic: ' + message['eqlogic'])
+				logging.debug('StromPi-Mode: ' + strompi_mode_converter((int(sp3_modus))))
+				logging.debug('StromPi-Output: ' + output_status_converter((int(sp3_output_status))))
+				logging.debug('Wide-Range-Inputvoltage: ' + str(sp3_ADC_Wide) + 'V')
+				#_jeedomCom.send_change_immediate({'cmd' : 'update','StromPi-Mode' : '2'})
+				jeedom_com.send_change_immediate({'StromPi-Mode' : strompi_mode_converter((int(sp3_modus))), 'eqlogic' : message['eqlogic']})
+				jeedom_com.send_change_immediate({'StromPi-Output' : output_status_converter((int(sp3_output_status))), 'eqlogic' : message['eqlogic']})
+				jeedom_com.send_change_immediate({'StromPi-Output-Voltage' : sp3_ADC_OUTPUT, 'eqlogic' : message['eqlogic']})
+				jeedom_com.send_change_immediate({'StromPi-Wide-Inputvoltage' : sp3_ADC_Wide, 'eqlogic' : message['eqlogic']})
+			else:
+				logging.error('Invalid action from socket')
 		except Exception as e:
-			logging.error('Send command to demon error: %s' ,e)
+			logging.error('Failed to perform an action: ' + str(e))
 
 def listen():
 	jeedom_socket.open()
@@ -87,6 +147,46 @@ def listen():
 		shutdown()
 
 # ----------------------------------------------------------------------------
+def strompi_mode_converter(argument):
+    switcher = {
+        1: 'mUSB -> Wide',
+        2: 'Wide -> mUSB',
+        3: 'mUSB -> Battery',
+        4: 'Wide -> Battery',
+        5: "mUSB -> Wide -> Battery",
+        6: "Wide -> mUSB -> Battery",
+    }
+    return switcher.get(argument, 'nothing')
+
+def output_status_converter(argument):
+    switcher = {
+        0: 'Power-Off', #only for Debugging-Purposes
+        1: 'mUSB',
+        2: 'Wide',
+        3: 'Battery',
+    }
+    return switcher.get(argument, 'nothing')
+
+def batterylevel_converter(batterylevel,charging):
+
+    if charging:
+        switcher = {
+            1: ' [10%] [charging]',
+            2: ' [25%] [charging]',
+            3: ' [50%] [charging]',
+            4: ' [100%] [charging]',
+        }
+        return switcher.get(batterylevel, 'nothing')
+    else:
+        switcher = {
+            1: ' [10%]',
+            2: ' [25%]',
+            3: ' [50%]',
+            4: ' [100%]',
+        }
+        return switcher.get(batterylevel, 'nothing')
+
+
 
 def handler(signum=None, frame=None):
 	logging.debug("Signal %i caught, exiting...", int(signum))
@@ -155,6 +255,7 @@ if args.socketport:
 _socket_port = int(_socketport)
 
 jeedom_utils.set_log_level(_log_level)
+jeedom_com = jeedom_com(apikey=_apikey, url=_callback)
 
 logging.info('Start demond')
 logging.info('Log level: %s', _log_level)
@@ -162,6 +263,7 @@ logging.info('Socket port: %s', _socket_port)
 logging.info('Socket host: %s', _socket_host)
 logging.info('PID file: %s', _pidfile)
 logging.info('Apikey: %s', _apikey)
+logging.info('Callback: %s', _callback)
 logging.info('serialport: %s', _serialport)
 
 signal.signal(signal.SIGINT, handler)
