@@ -327,6 +327,18 @@ class jeestrompi extends eqLogic {
   $strompisend->setSubType('other');
   $strompisend->save();	  
     
+  $StromPiOutputMode = $this->getCmd(null, 'StromPiOutputMode');
+  if (!is_object($StromPiOutputMode)) {
+    $StromPiOutputMode = new jeestrompiCmd();
+    $StromPiOutputMode->setName(__('Strompi Output Mode', __FILE__));
+  }
+  $StromPiOutputMode->setLogicalId('StromPiOutputMode');
+  $StromPiOutputMode->setEqLogic_id($this->getId());
+  $StromPiOutputMode->setType('info');
+  $StromPiOutputMode->setTemplate('dashboard','tile');//template pour le dashboard
+  $StromPiOutputMode->setSubType('other');
+  $StromPiOutputMode->save();
+	
   $StromPiOutput = $this->getCmd(null, 'StromPiOutput');
   if (!is_object($StromPiOutput)) {
     $StromPiOutput = new jeestrompiCmd();
@@ -396,7 +408,7 @@ class jeestrompi extends eqLogic {
   $strompimode->setEqLogic_id($this->getId());
   $strompimode->setType('info');
   $strompimode->setTemplate('dashboard','tile');//template pour le dashboard
-  $strompimode->setSubType('numeric');
+  $strompimode->setSubType('other');
   $strompimode->save();
   }
 
