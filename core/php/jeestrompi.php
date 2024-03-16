@@ -47,10 +47,12 @@
             /*log::add('jeestrompi', 'debug', ' - cmd : ' . $cmd->getName() . ', value -> '. $cmd->execCmd().'  eqlogic : '.$cmd->getId());*/
           	if ($cmd->getName() == 'Strompi Mode') {
               $Strompi_mode_object_id = $cmd->getId();
-            } elseif  ($cmd->getName() == 'Strompi Output') {
-              $Strompi_Output_object_id = $cmd->getId();
-             } elseif  ($cmd->getName() == 'StromPi-Output-Voltage') {
+			} elseif  ($cmd->getName() == 'Strompi Output Mode') {
+              $Strompi_Output__Mode_object_id = $cmd->getId();
+            } elseif  ($cmd->getName() == 'Strompi Output Voltage') {
               $Strompi_Output_Voltage_object_id = $cmd->getId();
+            } elseif  ($cmd->getName() == 'Strompi Wide') {
+              $Strompi_Wide_Input_object_id = $cmd->getId();
             } else {
               
             }
@@ -59,24 +61,23 @@
     }
 	/*log::add('jeestrompi', 'debug', ' - cmd : ' $eq->searchByString*/
     if (isset($result['StromPi-Mode'])) {
-        // do something
       /*$eqLogic = eqLogic::byType('strompimode');*/
       log::add('jeestrompi', 'debug', 'receive daemon StromPi-Mode=' .$result['StromPi-Mode']);
       log::add('jeestrompi', 'debug', 'receive daemon eqlogic ='.$eqLogic[0]);
-      /*$eqLogic = eqLogic::byType('strompimode');*/
-      cmd::byId($Strompi_Output_object_id)->event($result['StromPi-Mode']);
-      /*$eqlogic->checkAndUpdateCmd('strompimode', '12');*/
-    } elseif (isset($result['StromPi-Output'])) {
-        // do something else
-      log::add('jeestrompi', 'debug', 'receive daemon StromPi-Output-Voltage =' .$result['StromPi-Output']);
-      cmd::byId($Strompi_Output_Voltage_object_id)->event($result['StromPi-Output']);
+      cmd::byId($Strompi_mode_object_id)->event($result['StromPi-Mode']);
+    } elseif (isset($result['StromPi-Output-Mode'])) {
+      log::add('jeestrompi', 'debug', 'receive daemon StromPi-Output-Mode =' .$result['StromPi-Output-Mode']);
+      cmd::byId($Strompi_Output__Mode_object_id)->event($result['StromPi-Output-Mode']);
     } elseif (isset($result['StromPi-Output-Voltage'])) {
-        // do something else
       log::add('jeestrompi', 'debug', 'receive daemon StromPi-Output-Voltage =' .$result['StromPi-Output-Voltage']);
+      cmd::byId($Strompi_Output_Voltage_object_id)->event($result['StromPi-Output-Voltage']);
       /*log::add('jeestrompi', 'debug', 'receive daemon StromPi-Wide-Inputvoltage =' .$result['StromPi-Wide-Inputvoltage']);
       $eqlogic = $this->getEqLogic(); //récupère l'éqlogic de la commande $this
       log::add('jeestrompi', 'debug', 'getLogicalId='.$this->getLogicalId());
       $eqlogic->checkAndUpdateCmd('StromPiOutput', $result['StromPi-Output-Voltage']);*/
+	} elseif (isset($result['StromPi-Wide-Inputvoltage'])) {
+      log::add('jeestrompi', 'debug', 'receive daemon StromPi-Wide-Inputvoltage =' .$result['StromPi-Wide-Inputvoltage']);
+      cmd::byId($Strompi_Wide_Input_object_id)->event($result['StromPi-Wide-Inputvoltage']);
     } else {
         log::add('jeestrompi', 'error', 'unknown message received from daemon'); //remplacez template par l'id de votre plugin
     }

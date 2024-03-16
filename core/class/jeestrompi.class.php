@@ -339,17 +339,17 @@ class jeestrompi extends eqLogic {
   $StromPiOutputMode->setSubType('other');
   $StromPiOutputMode->save();
 	
-  $StromPiOutput = $this->getCmd(null, 'StromPiOutput');
-  if (!is_object($StromPiOutput)) {
-    $StromPiOutput = new jeestrompiCmd();
-    $StromPiOutput->setName(__('Strompi Output', __FILE__));
+  $StromPiOutputVoltage = $this->getCmd(null, 'StromPiOutputVoltage');
+  if (!is_object($StromPiOutputVoltage)) {
+    $StromPiOutputVoltage = new jeestrompiCmd();
+    $StromPiOutputVoltage->setName(__('Strompi Output Voltage', __FILE__));
   }
-  $StromPiOutput->setLogicalId('StromPiOutput');
-  $StromPiOutput->setEqLogic_id($this->getId());
-  $StromPiOutput->setType('info');
-  $StromPiOutput->setTemplate('dashboard','tile');//template pour le dashboard
-  $StromPiOutput->setSubType('numeric');
-  $StromPiOutput->save();
+  $StromPiOutputVoltage->setLogicalId('StromPiOutputVoltage');
+  $StromPiOutputVoltage->setEqLogic_id($this->getId());
+  $StromPiOutputVoltage->setType('info');
+  $StromPiOutputVoltage->setTemplate('dashboard','tile');//template pour le dashboard
+  $StromPiOutputVoltage->setSubType('numeric');
+  $StromPiOutputVoltage->save();
  
  $StromPiLifePo4Charge = $this->getCmd(null, 'StromPiLifePo4Charge');
   if (!is_object($StromPiLifePo4Charge)) {

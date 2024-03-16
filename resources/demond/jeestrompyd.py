@@ -110,7 +110,7 @@ def read_socket():
 				logging.debug('Wide-Range-Inputvoltage: ' + str(sp3_ADC_Wide) + 'V')
 				#_jeedomCom.send_change_immediate({'cmd' : 'update','StromPi-Mode' : '2'})
 				jeedom_com.send_change_immediate({'StromPi-Mode' : strompi_mode_converter((int(sp3_modus))), 'eqlogic' : message['eqlogic']})
-				jeedom_com.send_change_immediate({'StromPi-Output' : output_status_converter((int(sp3_output_status))), 'eqlogic' : message['eqlogic']})
+				jeedom_com.send_change_immediate({'StromPi-Output-Mode' : output_status_converter((int(sp3_output_status))), 'eqlogic' : message['eqlogic']})
 				jeedom_com.send_change_immediate({'StromPi-Output-Voltage' : sp3_ADC_OUTPUT, 'eqlogic' : message['eqlogic']})
 				jeedom_com.send_change_immediate({'StromPi-Wide-Inputvoltage' : sp3_ADC_Wide, 'eqlogic' : message['eqlogic']})
 			else:
