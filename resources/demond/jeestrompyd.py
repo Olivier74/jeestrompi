@@ -26,6 +26,7 @@ from optparse import OptionParser
 from os.path import join
 import json
 import argparse
+import time
 import serial
 
 try:
@@ -57,10 +58,37 @@ def read_socket():
 			return
 		try:
 			if message['action'] == 'date-rpi':
-				logging.debug('demande date strompi : %s',message['action'])
+				logging.debug('demande synchro date strompi : %s',message['action'])
 				ser.write(str.encode('date-rpi'))
 				time.sleep(0.3)
 				ser.write(str.encode('\x0D'))
+				data = ser.read(9999);
+				date = int(data)
+                strompi_year = date // 10000
+                strompi_month = date % 10000 // 100
+                strompi_day = date % 100
+                sleep(0.1)
+                ser.write(str.encode('time-rpi'))
+                sleep(0.1)
+                ser.write(str.encode('\x0D'))
+                data = ser.read(9999);
+                timevalue = int(data)
+                strompi_hour = timevalue // 10000
+                strompi_min = timevalue % 10000 // 100
+                strompi_sec = timevalue % 100
+                rpi_time = datetime.datetime.now().replace(microsecond=0)
+                strompi_time = datetime.datetime(2000 + strompi_year, strompi_month, strompi_day, strompi_hour, strompi_min, strompi_sec, 0)
+                command = 'set-time %02d %02d %02d' % (int(rpi_time.strftime('%H')),int(rpi_time.strftime('%M')),int(rpi_time.strftime('%S')))
+                
+                if rpi_time > strompi_time:
+                    ser.write(str.encode('set-date %02d %02d %02d %02d' % (int(rpi_time.strftime('%d')),int(rpi_time.strftime('%m')),int(rpi_time.strftime('%Y'))%100,int(rpi_time.isoweekday()))))
+                    sleep(0.5)
+                    ser.write(str.encode('\x0D'))
+                    sleep(1)
+                    ser.write(str.encode('set-clock %02d %02d %02d' % (int(rpi_time.strftime('%H')),int(rpi_time.strftime('%M')),int(rpi_time.strftime('%S')))))
+                    sleep(0.5)
+                    ser.write(str.encode('\x0D'))                
+                
 			elif message['action'] == "status-rpi":
 				logging.debug('demande date strompi : %s',message['action'])
 				ser.write(str.encode('status-rpi'))
@@ -104,18 +132,25 @@ def read_socket():
 				sp3_output_status = ser.readline(9999);
 				sp3_powerfailure_counter = ser.readline(9999);
 				sp3_firmwareVersion = ser.readline(9999);
+				date = int(sp3_date)
+				strompi_year = int(sp3_date) // 10000
+				strompi_month = int(sp3_date) % 10000 // 100
+				strompi_day = int(sp3_date) % 100
+				strompi_hour = int(sp3_time) // 10000
+				strompi_min = int(sp3_time) % 10000 // 100
+				strompi_sec = int(sp3_time) % 100
 				#logging.debug('eqlogic: ' + message['eqlogic'])
 				#logging.debug('StromPi-Mode: ' + strompi_mode_converter((int(sp3_modus))))
 				#logging.debug('StromPi-Output: ' + output_status_converter((int(sp3_output_status))))
 				#logging.debug('Wide-Range-Inputvoltage: ' + str(sp3_ADC_Wide) + 'V')
 				#_jeedomCom.send_change_immediate({'cmd' : 'update','StromPi-Mode' : '2'})
-				jeedom_com.send_change_immediate({'StromPi-Mode' : strompi_mode_converter((int(sp3_modus))), 'eqlogic' : message['eqlogic']})
-				jeedom_com.send_change_immediate({'StromPi-Output-Mode' : output_status_converter((int(sp3_output_status))), 'eqlogic' : message['eqlogic']})
-				jeedom_com.send_change_immediate({'StromPi-Output-Voltage' : sp3_ADC_OUTPUT, 'eqlogic' : message['eqlogic']})
-				jeedom_com.send_change_immediate({'StromPi-Wide-Inputvoltage' : sp3_ADC_Wide, 'eqlogic' : message['eqlogic']})
-				jeedom_com.send_change_immediate({'StromPi-Usb-Inputvoltage' : sp3_ADC_USB, 'eqlogic' : message['eqlogic']})
-				jeedom_com.send_change_immediate({'StromPi-LifePo4-Inputvoltage' : sp3_ADC_BAT, 'eqlogic' : message['eqlogic']})
-				jeedom_com.send_change_immediate({'StromPi-LifePo4Charge' : batterylevel_converter(int(sp3_batLevel),int(sp3_charging)), 'eqlogic' : message['eqlogic']})
+				DateTimeOutput = weekday_converter(int(sp3_weekday)) + ' ' + str(strompi_day).zfill(2) + '.' + str(strompi_month).zfill(2) + '.' + str(strompi_year).zfill(2) + ' ' + str(strompi_hour).zfill(2) + ':' + str(strompi_min).zfill(2) + ':' + str(strompi_sec).zfill(2)
+				logging.debug('datetime: ' + DateTimeOutput)
+				jeedom_com.send_change_immediate({'StromPi-DateTimeOutput' : DateTimeOutput, 'eqlogic' : message['eqlogic']})
+				StrompiStatusOutput = ' ' + str(strompi_mode_converter((int(sp3_modus)))) + '|' + str(output_status_converter((int(sp3_output_status)))) + '|' + str(sp3_ADC_OUTPUT) + '|' + str(sp3_ADC_Wide) + '|' + str(sp3_ADC_USB) + '|' + str(sp3_ADC_BAT) + '|' + str(batterylevel_converter(int(sp3_batLevel),int(sp3_charging)))
+				#StrompiStatusOutput = str(strompi_mode_converter((int(sp3_modus)))) + ' ' 
+				logging.debug('Status Output: ' + StrompiStatusOutput)
+				jeedom_com.send_change_immediate({'StromPi-StrompiStatusOutput' : StrompiStatusOutput, 'eqlogic' : message['eqlogic']})
 			else:
 				logging.error('Invalid action from socket')
 		except Exception as e:
@@ -129,17 +164,17 @@ def listen():
 	time.sleep(0.3)
 	ser.write(str.encode('\x0D'))
 	time.sleep(0.3)
-	ser.write(str.encode('date-rpi'))
-	time.sleep(0.3)
-	ser.write(str.encode('\x0D'))
-	data = ser.readline();
-	logging.debug('strompi <<< %s',data)
-	time.sleep(0.3)
-	ser.write(str.encode('time-rpi'))
-	time.sleep(0.3)
-	ser.write(str.encode('\x0D'))
-	data = ser.readline();
-	logging.debug('strompi <<< %s',data)
+	#ser.write(str.encode('date-rpi'))
+	#time.sleep(0.3)
+	#ser.write(str.encode('\x0D'))
+	#data = ser.readline();
+	#logging.debug('strompi <<< %s',data)
+	#time.sleep(0.3)
+	#ser.write(str.encode('time-rpi'))
+	#time.sleep(0.3)
+	#ser.write(str.encode('\x0D'))
+	#data = ser.readline();
+	#logging.debug('strompi <<< %s',data)
 	try:
 		while 1:
 			time.sleep(0.3)
@@ -150,6 +185,18 @@ def listen():
 		shutdown()
 
 # ----------------------------------------------------------------------------
+def weekday_converter(argument):
+    switcher = {
+        1: 'lundi',
+        2: 'Mardi',
+        3: 'Mercredi',
+        4: 'Jeudi',
+        5: 'Vendredi',
+        6: 'Samedi',
+        7: 'Dimanche'
+    }
+    return switcher.get(argument, 'nothing')
+
 def strompi_mode_converter(argument):
     switcher = {
         1: 'mUSB -> Wide',

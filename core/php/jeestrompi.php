@@ -47,6 +47,8 @@
             /*log::add('jeestrompi', 'debug', ' - cmd : ' . $cmd->getName() . ', value -> '. $cmd->execCmd().'  eqlogic : '.$cmd->getId());*/
           	if ($cmd->getName() == 'Strompi Mode') {
               $Strompi_mode_object_id = $cmd->getId();
+			} elseif  ($cmd->getName() == 'Heure') {
+              $Strompi_DateTime_object_id = $cmd->getId();
 			} elseif  ($cmd->getName() == 'Strompi Output Mode') {
               $Strompi_Output__Mode_object_id = $cmd->getId();
             } elseif  ($cmd->getName() == 'Strompi Output Voltage') {
@@ -66,14 +68,28 @@
       }
     }
 	/*log::add('jeestrompi', 'debug', ' - cmd : ' $eq->searchByString*/
-    if (isset($result['StromPi-Mode'])) {
+    if (isset($result['StromPi-DateTimeOutput'])) {
       /*$eqLogic = eqLogic::byType('strompimode');*/
-      log::add('jeestrompi', 'debug', 'receive daemon StromPi-Mode=' .$result['StromPi-Mode']);
+      log::add('jeestrompi', 'debug', 'receive daemon StromPi-DateTimeOutput=' .$result['StromPi-DateTimeOutput']);
       log::add('jeestrompi', 'debug', 'receive daemon eqlogic ='.$eqLogic[0]);
-      cmd::byId($Strompi_mode_object_id)->event($result['StromPi-Mode']);
-    } elseif (isset($result['StromPi-Output-Mode'])) {
-      log::add('jeestrompi', 'debug', 'receive daemon StromPi-Output-Mode =' .$result['StromPi-Output-Mode']);
-      cmd::byId($Strompi_Output__Mode_object_id)->event($result['StromPi-Output-Mode']);
+      cmd::byId($Strompi_DateTime_object_id)->event($result['StromPi-DateTimeOutput']);
+    } elseif (isset($result['StromPi-StrompiStatusOutput'])) {
+      log::add('jeestrompi', 'debug', 'receive daemon StromPi-StrompiStatusOutput =' .$result['StromPi-StrompiStatusOutput']);
+	  list($StromPiMode, $StromPiModeOutput, $StromPiOutputVoltage, $StromPiWide, $StromPiUSB, $StromPiLifePo4V, $StromPiLifePo4Charge) = explode("|", $result['StromPi-StrompiStatusOutput']);
+	  if ($StromPiWide == '') $StromPiWide=0;
+	  if ($StromPiMode == '') $StromPiMode=-1;
+	  if ($StromPiLifePo4V == '') $StromPiLifePo4V=-1;
+	  if ($StromPiLifePo4Charge == '') $StromPiLifePo4Charge=-1;
+	  if ($StromPiLifePo4Charge == '') $StromPiLifePo4Charge=-1;
+	  if ($StromPiWide == '') $StromPiWide=-1;
+	  if ($StromPiUSB == '') $StromPiUSB=-1;
+	  cmd::byId($Strompi_mode_object_id)->event($StromPiMode);
+	  cmd::byId($Strompi_Output__Mode_object_id)->event($StromPiModeOutput);
+	  cmd::byId($Strompi_Output_Voltage_object_id)->event($StromPiOutputVoltage);
+	  cmd::byId($Strompi_Wide_Input_object_id)->event($StromPiWide);
+	  cmd::byId($Strompi_USB_Input_object_id)->event($StromPiUSB);
+	  cmd::byId($Strompi_LifePo4_Input_object_id)->event($StromPiLifePo4V);
+	  cmd::byId($Strompi_LifePo4Charge_Input_object_id)->event($StromPiLifePo4Charge);
     } elseif (isset($result['StromPi-Output-Voltage'])) {
       log::add('jeestrompi', 'debug', 'receive daemon StromPi-Output-Voltage =' .$result['StromPi-Output-Voltage']);
       cmd::byId($Strompi_Output_Voltage_object_id)->event($result['StromPi-Output-Voltage']);
@@ -81,18 +97,6 @@
       $eqlogic = $this->getEqLogic(); //récupère l'éqlogic de la commande $this
       log::add('jeestrompi', 'debug', 'getLogicalId='.$this->getLogicalId());
       $eqlogic->checkAndUpdateCmd('StromPiOutput', $result['StromPi-Output-Voltage']);*/
-	} elseif (isset($result['StromPi-Wide-Inputvoltage'])) {
-      log::add('jeestrompi', 'debug', 'receive daemon StromPi-Wide-Inputvoltage =' .$result['StromPi-Wide-Inputvoltage']);
-      cmd::byId($Strompi_Wide_Input_object_id)->event($result['StromPi-Wide-Inputvoltage']);
-    } elseif (isset($result['StromPi-Usb-Inputvoltage'])) {
-      log::add('jeestrompi', 'debug', 'receive daemon StromPi-Usb-Inputvoltage =' .$result['StromPi-Usb-Inputvoltage']);
-      cmd::byId($Strompi_USB_Input_object_id)->event($result['StromPi-Usb-Inputvoltage']);
-    } elseif (isset($result['StromPi-LifePo4-Inputvoltage'])) {
-      log::add('jeestrompi', 'debug', 'receive daemon StromPi-LifePo4-Inputvoltage =' .$result['StromPi-LifePo4-Inputvoltage']);
-      cmd::byId($Strompi_LifePo4_Input_object_id)->event($result['StromPi-LifePo4-Inputvoltage']);
-    } elseif (isset($result['StromPi-LifePo4Charge'])) {
-      log::add('jeestrompi', 'debug', 'receive daemon StromPi-LifePo4Charge =' .$result['StromPi-LifePo4Charge']);
-      cmd::byId($Strompi_LifePo4Charge_Input_object_id)->event($result['StromPi-LifePo4Charge']);
     } else {
         log::add('jeestrompi', 'error', 'unknown message received from daemon'); //remplacez template par l'id de votre plugin
     }
