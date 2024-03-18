@@ -53,6 +53,12 @@
               $Strompi_Output_Voltage_object_id = $cmd->getId();
             } elseif  ($cmd->getName() == 'Strompi Wide') {
               $Strompi_Wide_Input_object_id = $cmd->getId();
+            } elseif  ($cmd->getName() == 'Strompi USB') {
+              $Strompi_USB_Input_object_id = $cmd->getId();
+            } elseif  ($cmd->getName() == 'Strompi LifePo4') {
+              $Strompi_LifePo4_Input_object_id = $cmd->getId();
+            } elseif  ($cmd->getName() == 'Strompi LifePo4Charge') {
+              $Strompi_LifePo4Charge_Input_object_id = $cmd->getId();
             } else {
               
             }
@@ -78,9 +84,19 @@
 	} elseif (isset($result['StromPi-Wide-Inputvoltage'])) {
       log::add('jeestrompi', 'debug', 'receive daemon StromPi-Wide-Inputvoltage =' .$result['StromPi-Wide-Inputvoltage']);
       cmd::byId($Strompi_Wide_Input_object_id)->event($result['StromPi-Wide-Inputvoltage']);
+    } elseif (isset($result['StromPi-Usb-Inputvoltage'])) {
+      log::add('jeestrompi', 'debug', 'receive daemon StromPi-Usb-Inputvoltage =' .$result['StromPi-Usb-Inputvoltage']);
+      cmd::byId($Strompi_USB_Input_object_id)->event($result['StromPi-Usb-Inputvoltage']);
+    } elseif (isset($result['StromPi-LifePo4-Inputvoltage'])) {
+      log::add('jeestrompi', 'debug', 'receive daemon StromPi-LifePo4-Inputvoltage =' .$result['StromPi-LifePo4-Inputvoltage']);
+      cmd::byId($Strompi_LifePo4_Input_object_id)->event($result['StromPi-LifePo4-Inputvoltage']);
+    } elseif (isset($result['StromPi-LifePo4Charge'])) {
+      log::add('jeestrompi', 'debug', 'receive daemon StromPi-LifePo4Charge =' .$result['StromPi-LifePo4Charge']);
+      cmd::byId($Strompi_LifePo4Charge_Input_object_id)->event($result['StromPi-LifePo4Charge']);
     } else {
         log::add('jeestrompi', 'error', 'unknown message received from daemon'); //remplacez template par l'id de votre plugin
     }
+
 /*} catch (Exception $e) {
     log::add('jeestrompi', 'error', displayException($e)); //remplacez template par l'id de votre plugin
 }*/

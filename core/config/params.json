@@ -1,17 +1,8 @@
 {
     "cmds": {
-        "domain": [
+        "config": [
             {
-                "logicalId": "hostname",
-                "name": "Hostname",
-                "type": "info",
-                "subtype": "string",
-                "generic_type": "GENERIC_INFO",
-                "isVisible": 1,
-                "order": 1
-            },
-            {
-                "logicalId": "expiration",
+                "logicalId": "date",
                 "name": "Days before expiration",
                 "type": "info",
                 "subtype": "numeric",
@@ -19,32 +10,12 @@
                 "isVisible": 1,
                 "order": 2,
                 "template": {
-                    "mobile": "line",
-                    "dashboard": "line"
+                    "mobile": "tile",
+                    "dashboard": "tile"
                 }
             },
             {
-                "logicalId": "renew",
-                "name": "Renew status",
-                "type": "info",
-                "subtype": "string",
-                "generic_type": "GENERIC_INFO",
-                "isHistorized": 0,
-                "isVisible": 1,
-                "order": 3
-            },
-            {
-                "logicalId": "iplinked",
-                "name": "linked IP",
-                "type": "info",
-                "subtype": "string",
-                "generic_type": "GENERIC_INFO",
-                "isHistorized": 0,
-                "isVisible": 1,
-                "order": 4
-            },
-            {
-                "logicalId": "endDate",
+                "logicalId": "heure",
                 "name": "Expiration date",
                 "type": "info",
                 "subtype": "string",
@@ -52,12 +23,12 @@
                 "isVisible": 1,
                 "order": 5,
                 "template": {
-                    "mobile": "line",
-                    "dashboard": "line"
+                    "mobile": "tile",
+                    "dashboard": "tile"
                 }
             }
         ],
-        "account": [
+        "cmds": [
             {
                 "logicalId": "refresh",
                 "name": "Refresh",
@@ -66,9 +37,17 @@
                 "isVisible": 1,
                 "order": 1
             },
+			{
+                "logicalId": "strompidatetime",
+                "name": "Synchro heure",
+                "type": "action",
+                "subtype": "other",
+                "isVisible": 1,
+                "order": 1
+            },
             {
-                "logicalId": "nextcheck",
-                "name": "Next automatic check",
+                "logicalId": "StromDateTime",
+                "name": "heure",
                 "type": "info",
                 "subtype": "string",
                 "generic_type": "GENERIC_INFO",
@@ -76,22 +55,34 @@
                 "order": 2
             },
             {
-                "logicalId": "refreshStatus",
-                "name": "Statut",
+                "logicalId": "StromPiMode",
+                "name": "Strompi Mode",
                 "type": "info",
                 "subtype": "string",
                 "generic_type": "GENERIC_INFO",
                 "isVisible": 1,
+				"isHistorized": 0,
                 "order": 3
+				"unite" : ""
+				"template": {
+                    "mobile": "tile",
+                    "dashboard": "tile"
+                }
             },
             {
-                "logicalId": "domainsDetails",
-                "name": "All domains details",
+				"logicalId": "StromPiOutputMode",
+                "name": "Strompi Output Mode",
                 "type": "info",
                 "subtype": "string",
                 "generic_type": "GENERIC_INFO",
-                "isVisible": 0,
+                "isVisible": 1,
+				"isHistorized": 0,
                 "order": 4
+				"unite" : ""
+				"template": {
+                    "mobile": "tile",
+                    "dashboard": "tile"
+                }
             }
         ]
     },

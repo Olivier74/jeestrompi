@@ -17,10 +17,12 @@
 
 /* * ***************************Includes********************************* */
 require_once __DIR__  . '/../../../../core/php/core.inc.php';
+require_once __DIR__ . '/../../3rdparty/tomitomas/tomitomasEqLogicTrait.php';
+
 
 class jeestrompi extends eqLogic {
   /*     * *************************Attributs****************************** */
-
+	use tomitomasEqLogicTrait;
   /*
   * Permet de définir les possibilités de personnalisation du widget (en cas d'utilisation de la fonction 'toHtml' par exemple)
   * Tableau multidimensionnel - exemple: array('custom' => true, 'custom::layout' => false)
@@ -32,7 +34,7 @@ class jeestrompi extends eqLogic {
   * Exemple : "param1" & "param2" seront cryptés mais pas "param3"
   public static $_encryptConfigKey = array('param1', 'param2');
   */
-
+	
   /*     * ***********************Methode static*************************** */
 	 public static function deamon_info() {
         $return = array();
@@ -305,6 +307,12 @@ class jeestrompi extends eqLogic {
 
   // Fonction exécutée automatiquement après la sauvegarde (création ou mise à jour) de l'équipement
   public function postSave() {
+	  $type = $this->getConfiguration('type', 'cmds');
+      $this->createCommands(__DIR__  . '/../config/params.json', $type);
+  }
+
+/* OLD
+ public function postSave() {
   $refresh = $this->getCmd(null, 'refresh');
   if (!is_object($refresh)) {
     $refresh = new jeestrompiCmd();
@@ -336,7 +344,7 @@ class jeestrompi extends eqLogic {
   $StromPiOutputMode->setEqLogic_id($this->getId());
   $StromPiOutputMode->setType('info');
   $StromPiOutputMode->setTemplate('dashboard','tile');//template pour le dashboard
-  $StromPiOutputMode->setSubType('other');
+  $StromPiOutputMode->setSubType('string');
   $StromPiOutputMode->save();
 	
   $StromPiOutputVoltage = $this->getCmd(null, 'StromPiOutputVoltage');
@@ -408,10 +416,10 @@ class jeestrompi extends eqLogic {
   $strompimode->setEqLogic_id($this->getId());
   $strompimode->setType('info');
   $strompimode->setTemplate('dashboard','tile');//template pour le dashboard
-  $strompimode->setSubType('other');
+  $strompimode->setSubType('string');
   $strompimode->save();
   }
-
+*/
   // Fonction exécutée automatiquement avant la suppression de l'équipement
   public function preRemove() {
   }
@@ -475,35 +483,25 @@ class jeestrompiCmd extends cmd {
        log::add('jeestrompi', 'info', 'mise a jour des valeurs de la carte strompi');
        /*$strompiTab = $eqlogic->strompiquerrry();*/
        /*$info = $eqlogic->randomVdm(); //On lance la fonction randomVdm() pour récupérer une vdm et on la stocke dans la variable $info*/
-       $info = $strompiTab[0];
-       $eqlogic->checkAndUpdateCmd('strompimode', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
-       $info = $strompiTab[1];
-       $eqlogic->checkAndUpdateCmd('StromPiLifePo4', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
-       $info = $strompiTab[2];
-       $eqlogic->checkAndUpdateCmd('StromPiWide', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
-       $info = $strompiTab[3];
-       $eqlogic->checkAndUpdateCmd('StromPiUSB', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
-       $info = $strompiTab[4];
-       $eqlogic->checkAndUpdateCmd('StromPiLifePo4Charge', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
-       $info = $strompiTab[5];
-       $eqlogic->checkAndUpdateCmd('StromPiOutput', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
+       /*$info = $strompiTab[0];
+       $eqlogic->checkAndUpdateCmd('strompimode', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic*/
+       $object_name = $this->getEqLogic()->getHumanName();     /*$object_id = cmd::byEqLogicId('#[Exterieur][strompi]#')->getId();*/
+       $object_id = $this->getEqLogic_id();
+       $parameter = array('eqlogic' => $object_id,'action' => 'status-rpi');
+       /*$parameter = 'action';*/
+       $eqlogic->sendToDaemon($parameter);
+       log::add('jeestrompi', 'info', 'envoi d un message a la  carte strompi');
       break;
       case 'strompimode': // LogicalId de la commande rafraîchir que l’on a créé dans la méthode Postsave de la classe vdm .
        log::add('jeestrompi', 'info', 'mise a jour des valeurs de la carte strompi');
       /* $strompiTab = $eqlogic->strompiquerrry();*/
        /*$info = $eqlogic->randomVdm(); //On lance la fonction randomVdm() pour récupérer une vdm et on la stocke dans la variable $info*/
-       $info = $strompiTab[0];
-       $eqlogic->checkAndUpdateCmd('strompimode', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
-       $info = $strompiTab[1];
-       $eqlogic->checkAndUpdateCmd('StromPiLifePo4', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
-       $info = $strompiTab[2];
-       $eqlogic->checkAndUpdateCmd('StromPiWide', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
-       $info = $strompiTab[3];
-       $eqlogic->checkAndUpdateCmd('StromPiUSB', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
-       $info = $strompiTab[4];
-       $eqlogic->checkAndUpdateCmd('StromPiLifePo4Charge', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
-       $info = $strompiTab[5];
-       $eqlogic->checkAndUpdateCmd('StromPiOutput', $info); //on met à jour la commande avec le LogicalId "story"  de l'eqlogic
+      $object_name = $this->getEqLogic()->getHumanName();     /*$object_id = cmd::byEqLogicId('#[Exterieur][strompi]#')->getId();*/
+       $object_id = $this->getEqLogic_id();
+       $parameter = array('eqlogic' => $object_id,'action' => 'status-rpi');
+       /*$parameter = 'action';*/
+       $eqlogic->sendToDaemon($parameter);
+       log::add('jeestrompi', 'info', 'envoi d un message a la  carte strompi');
       break;
     }
 }

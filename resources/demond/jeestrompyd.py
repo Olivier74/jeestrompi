@@ -104,15 +104,18 @@ def read_socket():
 				sp3_output_status = ser.readline(9999);
 				sp3_powerfailure_counter = ser.readline(9999);
 				sp3_firmwareVersion = ser.readline(9999);
-				logging.debug('eqlogic: ' + message['eqlogic'])
-				logging.debug('StromPi-Mode: ' + strompi_mode_converter((int(sp3_modus))))
-				logging.debug('StromPi-Output: ' + output_status_converter((int(sp3_output_status))))
-				logging.debug('Wide-Range-Inputvoltage: ' + str(sp3_ADC_Wide) + 'V')
+				#logging.debug('eqlogic: ' + message['eqlogic'])
+				#logging.debug('StromPi-Mode: ' + strompi_mode_converter((int(sp3_modus))))
+				#logging.debug('StromPi-Output: ' + output_status_converter((int(sp3_output_status))))
+				#logging.debug('Wide-Range-Inputvoltage: ' + str(sp3_ADC_Wide) + 'V')
 				#_jeedomCom.send_change_immediate({'cmd' : 'update','StromPi-Mode' : '2'})
 				jeedom_com.send_change_immediate({'StromPi-Mode' : strompi_mode_converter((int(sp3_modus))), 'eqlogic' : message['eqlogic']})
 				jeedom_com.send_change_immediate({'StromPi-Output-Mode' : output_status_converter((int(sp3_output_status))), 'eqlogic' : message['eqlogic']})
 				jeedom_com.send_change_immediate({'StromPi-Output-Voltage' : sp3_ADC_OUTPUT, 'eqlogic' : message['eqlogic']})
 				jeedom_com.send_change_immediate({'StromPi-Wide-Inputvoltage' : sp3_ADC_Wide, 'eqlogic' : message['eqlogic']})
+				jeedom_com.send_change_immediate({'StromPi-Usb-Inputvoltage' : sp3_ADC_USB, 'eqlogic' : message['eqlogic']})
+				jeedom_com.send_change_immediate({'StromPi-LifePo4-Inputvoltage' : sp3_ADC_BAT, 'eqlogic' : message['eqlogic']})
+				jeedom_com.send_change_immediate({'StromPi-LifePo4Charge' : batterylevel_converter(int(sp3_batLevel),int(sp3_charging)), 'eqlogic' : message['eqlogic']})
 			else:
 				logging.error('Invalid action from socket')
 		except Exception as e:
@@ -171,10 +174,10 @@ def batterylevel_converter(batterylevel,charging):
 
     if charging:
         switcher = {
-            1: ' [10%] [charging]',
-            2: ' [25%] [charging]',
-            3: ' [50%] [charging]',
-            4: ' [100%] [charging]',
+            1: ' 10% charging',
+            2: ' 25% charging',
+            3: ' 50% charging',
+            4: ' 100% charging',
         }
         return switcher.get(batterylevel, 'nothing')
     else:
