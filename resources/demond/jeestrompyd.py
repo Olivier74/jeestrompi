@@ -60,16 +60,16 @@ def read_socket():
 			if message['action'] == 'date-rpi':
 				logging.debug('demande synchro date strompi : %s',message['action'])
 				ser.write(str.encode('date-rpi'))
-				time.sleep(0.3)
+				time.sleep(0.1)
 				ser.write(str.encode('\x0D'))
 				data = ser.read(9999);
 				date = int(data)
 				strompi_year = date // 10000
 				strompi_month = date % 10000 // 100
 				strompi_day = date % 100
-				sleep(0.1)
+				time.sleep(0.1)
 				ser.write(str.encode('time-rpi'))
-				sleep(0.1)
+				time.sleep(0.1)
 				ser.write(str.encode('\x0D'))
 				data = ser.read(9999);
 				timevalue = int(data)
@@ -81,11 +81,11 @@ def read_socket():
 				command = 'set-time %02d %02d %02d' % (int(rpi_time.strftime('%H')),int(rpi_time.strftime('%M')),int(rpi_time.strftime('%S')))
 				if rpi_time > strompi_time:
 					ser.write(str.encode('set-date %02d %02d %02d %02d' % (int(rpi_time.strftime('%d')),int(rpi_time.strftime('%m')),int(rpi_time.strftime('%Y'))%100,int(rpi_time.isoweekday()))))
-					sleep(0.5)
+					time.sleep(0.3)
 					ser.write(str.encode('\x0D'))
-					sleep(1)
+					time.sleep(1)
 					ser.write(str.encode('set-clock %02d %02d %02d' % (int(rpi_time.strftime('%H')),int(rpi_time.strftime('%M')),int(rpi_time.strftime('%S')))))
-					sleep(0.5)
+					time.sleep(0.5)
 					ser.write(str.encode('\x0D'))                
 			elif message['action'] == "status-rpi":
 				logging.debug('demande date strompi : %s',message['action'])
