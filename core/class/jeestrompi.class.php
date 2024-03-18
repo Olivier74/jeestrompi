@@ -17,7 +17,7 @@
 
 /* * ***************************Includes********************************* */
 require_once __DIR__  . '/../../../../core/php/core.inc.php';
-require_once __DIR__ . '/../../3rdparty/tomitomas/tomitomasEqLogicTrait.php';
+/*require_once __DIR__ . '/../../3rdparty/tomitomas/tomitomasEqLogicTrait.php';*/
 
 
 class jeestrompi extends eqLogic {
@@ -192,18 +192,6 @@ class jeestrompi extends eqLogic {
   * Fonction exécutée automatiquement toutes les 30 minutes par Jeedom
   public static function cron30() {}
   */
-  public function randomVdm() {
-    $url = "http://www.viedemerde.fr/aleatoire";
-    $data = file_get_contents($url);
-    @$dom = new DOMDocument();
-    libxml_use_internal_errors(true);
-    $dom->loadHTML($data);
-    libxml_use_internal_errors(false);
-    $xpath = new DOMXPath($dom);
-    $divs = $xpath->query('//a[@class="block text-blue-500 dark:text-white my-4 "][1]');
-    /*return $xpath;*/
-    return $divs[0]->nodeValue ;
-  }
   
   public function strompiquerrry() {
     $plugin = plugin::byId('jeestrompi');
