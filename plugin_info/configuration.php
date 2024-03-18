@@ -31,8 +31,8 @@ if (!isConnect()) {
       <div class="col-md-4">
         <select class="configKey form-control" data-l1key="strompiserialport"/>
 		<option value=""></option>
-		  <?php foreach (ls('/dev/', 'serial*') as $value) {
-                         echo '<option value="/dev/'.$value.'">'.$value.'</option>';
+		  <?php foreach (ls('/dev/', 'serial?') as $value) {
+                         echo '<option value="/dev/'.$value.'">/dev/'.$value.'</option>';
                     }?>
           <option value="/dev/serial0" selected>/dev/serial0</option>
           <option value="/dev/serial1">/dev/serial1</option>

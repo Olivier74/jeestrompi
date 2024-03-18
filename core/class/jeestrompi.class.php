@@ -526,16 +526,16 @@ class jeestrompiCmd extends cmd {
        $eqlogic->sendToDaemon($parameter);
        log::add('jeestrompi', 'info', 'envoi d un message a la  carte strompi');
       break;
-      case 'strompimode': // LogicalId de la commande rafraîchir que l’on a créé dans la méthode Postsave de la classe vdm .
+      case 'strompisync': // LogicalId de la commande rafraîchir que l’on a créé dans la méthode Postsave de la classe vdm .
        log::add('jeestrompi', 'info', 'mise a jour des valeurs de la carte strompi');
       /* $strompiTab = $eqlogic->strompiquerrry();*/
        /*$info = $eqlogic->randomVdm(); //On lance la fonction randomVdm() pour récupérer une vdm et on la stocke dans la variable $info*/
-      $object_name = $this->getEqLogic()->getHumanName();     /*$object_id = cmd::byEqLogicId('#[Exterieur][strompi]#')->getId();*/
+       $object_name = $this->getEqLogic()->getHumanName();     /*$object_id = cmd::byEqLogicId('#[Exterieur][strompi]#')->getId();*/
        $object_id = $this->getEqLogic_id();
-       $parameter = array('eqlogic' => $object_id,'action' => 'status-rpi');
+       $parameter = array('eqlogic' => $object_id,'action' => 'date-rpi');
        /*$parameter = 'action';*/
        $eqlogic->sendToDaemon($parameter);
-       log::add('jeestrompi', 'info', 'envoi d un message a la  carte strompi');
+       log::add('jeestrompi', 'info', 'envoi d un message date-rpi a la  carte strompi');
       break;
     }
   }
