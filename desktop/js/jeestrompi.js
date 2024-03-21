@@ -145,3 +145,59 @@ function syncDateTime(_infosyn) {
 	});
 	
 }
+
+function ChangeMode(_infosyn) {
+  console.log('fn ChangeMode');
+  	$.ajax({
+		type: "POST", // méthode de transmission des données au fichier php
+		url: "plugins/jeestrompi/core/ajax/jeestrompi.ajax.php", 
+		data: {
+			action: "ChangeMode",
+            infosyn: _infosyn,
+            id: $('.eqLogicAttr[data-l1key=id]').value()
+		},
+		dataType: 'json',
+		global: false,
+		error: function (request, status, error) {
+			handleAjaxError(request, status, error);
+		},
+		success: function (data) { 
+			if (data.state != 'ok') {
+				$('#div_alert').showAlert({message: "ChangeMode:: " + data.result, level: 'danger'});
+				return;
+			}
+			$('#div_alert').showAlert({message: '{{Opération réalisée avec succès}}', level: 'success'});
+                    //setTimeout( function() {location.reload();}, 1000);
+
+		}
+	});
+	
+}
+
+$('#bt_StrompiChangeMode').on('click', function (e) {
+bootbox.dialog({
+                title: "{{Modificaation du Mode}}",
+                message: "<label>{{Etes-vous sûr de vouloir synchroniser l'heure de la carte Strompi avec l'heure de Jeedom ?}}</label><p>" + document.getElementById('sel_object_StrompiModeConfig').value,
+                //size: 'large',
+                buttons: {
+                  cancel: {
+                    label: "{{Annuler}}",
+                    className: 'btn-warning',
+                    callback: function(){
+					}
+                  },
+                  success: {
+                    label: "{{Modification}}",
+                    className: "btn-success",
+                    callback: function() {
+                      ChangeMode(document.getElementById('sel_object_StrompiModeConfig').value);                	//ModifMode('val.selectedIndex');
+                    }
+                  },
+                }
+              });//end bootbox
+});
+//document.getElementById("sel_object_StrompiModeConfig").onchange = function(){
+ //if (this.selectedIndex>0){
+//   window.alert("modif cfg mode =" +this.selectedIndex);
+// }
+//}
