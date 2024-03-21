@@ -37,10 +37,15 @@ except ImportError:
 
 def read_strompi():
 	try:
-		x=ser.readline()
+		#x=ser.readline()
+		x=ser.read(9999)
 		y = x.decode(encoding='UTF-8',errors='strict')
 		if y != "":
-			logging.debug('strompi receive: %s',y)
+			#logging.debug('strompi receive: %s',y)
+			if y.find('ShutdownRaspberryPi') > 0:
+				logging.debug('mise a jour auto strompi sur message ShutdownRaspberryPi')
+				time.sleep(1)
+				read_strompi_status()
 	except Exception as e:
 		logging.error('Send command to demon error: %s' ,e)
 
@@ -88,69 +93,10 @@ def read_socket():
 					time.sleep(0.5)
 					ser.write(str.encode('\x0D'))                
 			elif message['action'] == "status-rpi":
-				logging.debug('demande date strompi : %s',message['action'])
-				ser.write(str.encode('status-rpi'))
-				time.sleep(0.3)
-				ser.write(str.encode('\x0D'))
-				sp3_time = ser.readline(9999);
-				sp3_date = ser.readline(9999);
-				sp3_weekday = ser.readline(9999);
-				sp3_modus = ser.readline(9999);
-				sp3_alarm_enable = ser.readline(9999);
-				sp3_alarm_mode = ser.readline(9999);
-				sp3_alarm_hour = ser.readline(9999);
-				sp3_alarm_min = ser.readline(9999);
-				sp3_alarm_day = ser.readline(9999);
-				sp3_alarm_month = ser.readline(9999);
-				sp3_alarm_weekday = ser.readline(9999);
-				sp3_alarmPoweroff = ser.readline(9999);
-				sp3_alarm_hour_off = ser.readline(9999);
-				sp3_alarm_min_off = ser.readline(9999);
-				sp3_shutdown_enable = ser.readline(9999);
-				sp3_shutdown_time = ser.readline(9999);
-				sp3_warning_enable = ser.readline(9999);
-				sp3_serialLessMode = ser.readline(9999);
-				sp3_intervalAlarm = ser.readline(9999);
-				sp3_intervalAlarmOnTime = ser.readline(9999);
-				sp3_intervalAlarmOffTime = ser.readline(9999);
-				sp3_batLevel_shutdown = ser.readline(9999);
-				sp3_batLevel = ser.readline(9999);
-				sp3_charging = ser.readline(9999);
-				sp3_powerOnButton_enable = ser.readline(9999);
-				sp3_powerOnButton_time = ser.readline(9999);
-				sp3_powersave_enable = ser.readline(9999);
-				sp3_poweroffMode = ser.readline(9999);
-				sp3_poweroff_time_enable = ser.readline(9999);
-				sp3_poweroff_time = ser.readline(9999);
-				sp3_wakeupweekend_enable = ser.readline(9999);
-				sp3_ADC_Wide = float(ser.readline(9999))/1000;
-				sp3_ADC_BAT = float(ser.readline(9999))/1000;
-				sp3_ADC_USB = float(ser.readline(9999))/1000;
-				sp3_ADC_OUTPUT = float(ser.readline(9999))/1000;
-				sp3_output_status = ser.readline(9999);
-				sp3_powerfailure_counter = ser.readline(9999);
-				sp3_firmwareVersion = ser.readline(9999);
-				date = int(sp3_date)
-				strompi_year = int(sp3_date) // 10000
-				strompi_month = int(sp3_date) % 10000 // 100
-				strompi_day = int(sp3_date) % 100
-				strompi_hour = int(sp3_time) // 10000
-				strompi_min = int(sp3_time) % 10000 // 100
-				strompi_sec = int(sp3_time) % 100
-				#logging.debug('eqlogic: ' + message['eqlogic'])
-				#logging.debug('StromPi-Mode: ' + strompi_mode_converter((int(sp3_modus))))
-				#logging.debug('StromPi-Output: ' + output_status_converter((int(sp3_output_status))))
-				#logging.debug('Wide-Range-Inputvoltage: ' + str(sp3_ADC_Wide) + 'V')
-				#_jeedomCom.send_change_immediate({'cmd' : 'update','StromPi-Mode' : '2'})
-				DateTimeOutput = weekday_converter(int(sp3_weekday)) + ' ' + str(strompi_day).zfill(2) + '.' + str(strompi_month).zfill(2) + '.' + str(strompi_year).zfill(2) + ' ' + str(strompi_hour).zfill(2) + ':' + str(strompi_min).zfill(2) + ':' + str(strompi_sec).zfill(2)
-				logging.debug('datetime: ' + DateTimeOutput)
-				jeedom_com.send_change_immediate({'StromPi-DateTimeOutput' : DateTimeOutput, 'eqlogic' : message['eqlogic']})
-				StrompiStatusOutput = ' ' + str(strompi_mode_converter((int(sp3_modus)))) + '|' + str(output_status_converter((int(sp3_output_status)))) + '|' + str(sp3_ADC_OUTPUT) + '|' + str(sp3_ADC_Wide) + '|' + str(sp3_ADC_USB) + '|' + str(sp3_ADC_BAT) + '|' + str(batterylevel_converter(int(sp3_batLevel),int(sp3_charging)))
-				#StrompiStatusOutput = str(strompi_mode_converter((int(sp3_modus)))) + ' ' 
-				logging.debug('Status Output: ' + StrompiStatusOutput)
-				jeedom_com.send_change_immediate({'StromPi-StrompiStatusOutput' : StrompiStatusOutput, 'eqlogic' : message['eqlogic']})
+				logging.debug('demande mise a jour strompi : %s',message['action'])
+				read_strompi_status(message['eqlogic'])
 			else:
-				logging.error('Invalid action from socket')
+				logging.error('Invalid action from socket')	
 		except Exception as e:
 			logging.error('Failed to perform an action: ' + str(e))
 
@@ -183,6 +129,73 @@ def listen():
 		shutdown()
 
 # ----------------------------------------------------------------------------
+
+def read_strompi_status(eqlogic=0):
+	logging.debug('execution de la commande status-rpi')
+	ser.write(str.encode('\x0D'))
+	time.sleep(0.3)
+	ser.write(str.encode('status-rpi'))
+	time.sleep(0.3)
+	ser.write(str.encode('\x0D'))
+	sp3_time = ser.readline(9999);
+	sp3_date = ser.readline(9999);
+	sp3_weekday = ser.readline(9999);
+	sp3_modus = ser.readline(9999);
+	sp3_alarm_enable = ser.readline(9999);
+	sp3_alarm_mode = ser.readline(9999);
+	sp3_alarm_hour = ser.readline(9999);
+	sp3_alarm_min = ser.readline(9999);
+	sp3_alarm_day = ser.readline(9999);
+	sp3_alarm_month = ser.readline(9999);
+	sp3_alarm_weekday = ser.readline(9999);
+	sp3_alarmPoweroff = ser.readline(9999);
+	sp3_alarm_hour_off = ser.readline(9999);
+	sp3_alarm_min_off = ser.readline(9999);
+	sp3_shutdown_enable = ser.readline(9999);
+	sp3_shutdown_time = ser.readline(9999);
+	sp3_warning_enable = ser.readline(9999);
+	sp3_serialLessMode = ser.readline(9999);
+	sp3_intervalAlarm = ser.readline(9999);
+	sp3_intervalAlarmOnTime = ser.readline(9999);
+	sp3_intervalAlarmOffTime = ser.readline(9999);
+	sp3_batLevel_shutdown = ser.readline(9999);
+	sp3_batLevel = ser.readline(9999);
+	sp3_charging = ser.readline(9999);
+	sp3_powerOnButton_enable = ser.readline(9999);
+	sp3_powerOnButton_time = ser.readline(9999);
+	sp3_powersave_enable = ser.readline(9999);
+	sp3_poweroffMode = ser.readline(9999);
+	sp3_poweroff_time_enable = ser.readline(9999);
+	sp3_poweroff_time = ser.readline(9999);
+	sp3_wakeupweekend_enable = ser.readline(9999);
+	sp3_ADC_Wide = float(ser.readline(9999))/1000;
+	sp3_ADC_BAT = float(ser.readline(9999))/1000;
+	sp3_ADC_USB = float(ser.readline(9999))/1000;
+	sp3_ADC_OUTPUT = float(ser.readline(9999))/1000;
+	sp3_output_status = ser.readline(9999);
+	sp3_powerfailure_counter = ser.readline(9999);
+	sp3_firmwareVersion = ser.readline(9999);
+	date = int(sp3_date)
+	strompi_year = int(sp3_date) // 10000
+	strompi_month = int(sp3_date) % 10000 // 100
+	strompi_day = int(sp3_date) % 100
+	strompi_hour = int(sp3_time) // 10000
+	strompi_min = int(sp3_time) % 10000 // 100
+	strompi_sec = int(sp3_time) % 100
+	#logging.debug('eqlogic: ' + message['eqlogic'])
+	#logging.debug('StromPi-Mode: ' + strompi_mode_converter((int(sp3_modus))))
+	#logging.debug('StromPi-Output: ' + output_status_converter((int(sp3_output_status))))
+	#logging.debug('Wide-Range-Inputvoltage: ' + str(sp3_ADC_Wide) + 'V')
+	#_jeedomCom.send_change_immediate({'cmd' : 'update','StromPi-Mode' : '2'})
+	DateTimeOutput = weekday_converter(int(sp3_weekday)) + ' ' + str(strompi_day).zfill(2) + '.' + str(strompi_month).zfill(2) + '.' + str(strompi_year).zfill(2) + ' ' + str(strompi_hour).zfill(2) + ':' + str(strompi_min).zfill(2) + ':' + str(strompi_sec).zfill(2)
+	logging.debug('datetime: ' + DateTimeOutput)
+	#jeedom_com.send_change_immediate({'StromPi-DateTimeOutput' : DateTimeOutput, 'eqlogic' : eqlogic})
+	StrompiStatusOutput = ' ' + str(strompi_mode_converter((int(sp3_modus)))) + '|' + str(output_status_converter((int(sp3_output_status)))) + '|' + str(sp3_ADC_OUTPUT) + '|' + str(sp3_ADC_Wide) + '|' + str(sp3_ADC_USB) + '|' + str(sp3_ADC_BAT) + '|' + str(batterylevel_converter(int(sp3_batLevel),int(sp3_charging)))
+	#StrompiStatusOutput = str(strompi_mode_converter((int(sp3_modus)))) + ' ' 
+	logging.debug('Status Output: ' + StrompiStatusOutput)
+	jeedom_com.send_change_immediate({'StromPi-StrompiStatusOutput' : DateTimeOutput + '|' + StrompiStatusOutput, 'eqlogic' : eqlogic})
+
+
 def weekday_converter(argument):
     switcher = {
         1: 'lundi',
@@ -197,12 +210,12 @@ def weekday_converter(argument):
 
 def strompi_mode_converter(argument):
     switcher = {
-        1: 'mUSB -> Wide',
-        2: 'Wide -> mUSB',
-        3: 'mUSB -> Battery',
-        4: 'Wide -> Battery',
-        5: "mUSB -> Wide -> Battery",
-        6: "Wide -> mUSB -> Battery",
+        1: '1 = mUSB -> Wide',
+        2: '2 = Wide -> mUSB',
+        3: '3 = mUSB -> Battery',
+        4: '4 = Wide -> Battery',
+        5: "5 = mUSB -> Wide -> Battery",
+        6: "6 = Wide -> mUSB -> Battery",
     }
     return switcher.get(argument, 'nothing')
 

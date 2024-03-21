@@ -128,20 +128,31 @@ $eqLogics = eqLogic::byType($plugin->getId());
 
 							<legend><i class="fas fa-cogs"></i> {{Paramètres spécifiques}}</legend>
 							<div class="form-group">
-								<label class="col-sm-4 control-label">{{Nom du paramètre n°1}}
-									<sup><i class="fas fa-question-circle tooltips" title="{{Renseignez le paramètre n°1 de l'équipement}}"></i></sup>
+								<label class="col-sm-4 control-label">{{Mode de backup STROMPI}}
+									<sup><i class="fas fa-question-circle tooltips" title="{{Permet de changer le mode de backup de la carte STROMPI}}"></i></sup>
 								</label>
 								<div class="col-sm-6">
-									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="param1" placeholder="{{Paramètre n°1}}">
+									<select id="sel_object_StrompiModeConfig" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="StrompiModeConfig">
+                                      <option value="1">{{1 = mUSB -> Wide}}</option>
+                                      <option selected="selected" value="2">{{2 = Wide -> mUSB}}</option>
+                                      <option value="3">{{3 = mUSB -> Battery}}</option>
+                                      <option value="4">{{4 = Wide -> Battery}}</option>
+                                      <option value="5">{{5 = mUSB -> Wide -> Battery}}</option>
+                                      <option value="6">{{6 = Wide -> mUSB -> Battery}}</option>
+                                  </select>
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-4 control-label"> {{Mot de passe}}
-									<sup><i class="fas fa-question-circle tooltips" title="{{Renseignez le mot de passe}}"></i></sup>
-								</label>
-								<div class="col-sm-6">
-									<input type="text" class="eqLogicAttr form-control inputPassword" data-l1key="configuration" data-l2key="password">
-								</div>
+								 <label class="col-sm-4 control-label">{{Synchroniser de l'heure}}
+								 <sup><i class="fas fa-question-circle tooltips" title="{{Permet de Synchroniser l'heure avec Jeedom ou d'actualiser l'heure de la carte STROMPI}}"></i></sup>
+								 </label>
+								 <span style="display : none;">'</span>
+											
+								 <div class="col-sm-6">
+									 
+									<a class="btn btn-sm btn-success roundedLeft" id="bt_syncDateTime"><i class="fa fa-check-circle"></i> {{Synchroniser}}</a>
+
+								 </div>
 							</div>
 							<!-- Exemple de champ de saisie du cron d'auto-actualisation avec assistant -->
 							<!-- La fonction cron de la classe du plugin doit contenir le code prévu pour que ce champ soit fonctionnel -->

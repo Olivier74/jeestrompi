@@ -294,7 +294,7 @@ class jeestrompi extends eqLogic {
     //$eqLogic->getConfiguration('StrompiModeConfig','');
     //$eqLogic23 = $this->getConfiguration('StrompiModeConfig');
     //$StrompiModeConfig =$eqlogic->getConfiguration('StrompiModeConfig');
-    $this->setConfiguration('StrompiModeConfig', 3);
+    //$this->setConfiguration('StrompiModeConfig', 3);
     $this->save(true);
     log::add('jeestrompi', 'debug', 'preSave : getConfiguration: '.$eqLogic23. ' eqlogic:'.$eqlogic);
   }
@@ -321,19 +321,19 @@ class jeestrompi extends eqLogic {
   $StrompiDateTime->setOrder(-50);
   $StrompiDateTime->save();
  
-  $strompimode = $this->getCmd(null, 'strompimode');
-  if (!is_object($strompimode)) {
-    $strompimode = new jeestrompiCmd();
-    $strompimode->setName(__('Strompi Mode', __FILE__));
+  $strompimodecfg = $this->getCmd(null, 'strompimodecfg');
+  if (!is_object($strompimodecfg)) {
+    $strompimodecfg = new jeestrompiCmd();
+    $strompimodecfg->setName(__('Strompi Mode config', __FILE__));
   }
-  $strompimode->setLogicalId('strompimode');
-  $strompimode->setEqLogic_id($this->getId());
-  $strompimode->setType('info');
-  $strompimode->setTemplate('dashboard','tile');//template pour le dashboard
-  $strompimode->setTemplate('mobile','tile');//template pour le dashboard
-  $strompimode->setSubType('string');
-  $strompimode->setOrder(-43);
-  $strompimode->save();
+  $strompimodecfg->setLogicalId('strompimodecfg');
+  $strompimodecfg->setEqLogic_id($this->getId());
+  $strompimodecfg->setType('info');
+  $strompimodecfg->setTemplate('dashboard','tile');//template pour le dashboard
+  $strompimodecfg->setTemplate('mobile','tile');//template pour le dashboard
+  $strompimodecfg->setSubType('string');
+  $strompimodecfg->setOrder(-43);
+  $strompimodecfg->save();
      
   $StromPiOutputMode = $this->getCmd(null, 'StromPiOutputMode');
   if (!is_object($StromPiOutputMode)) {

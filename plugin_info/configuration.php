@@ -34,8 +34,8 @@ if (!isConnect()) {
 		  <?php foreach (ls('/dev/', 'serial?') as $value) {
                          echo '<option value="/dev/'.$value.'">/dev/'.$value.'</option>';
                     }?>
-          <option value="/dev/serial0" selected>/dev/serial0</option>
-          <option value="/dev/serial1">/dev/serial1</option>
+         /* <option value="/dev/serial0" selected>/dev/serial0</option>
+          <option value="/dev/serial1">/dev/serial1</option>*/
          </select>
       </div>
     </div>

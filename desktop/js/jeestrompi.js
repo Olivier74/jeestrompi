@@ -85,3 +85,63 @@ function addCmdToTable(_cmd) {
     }
   })
 }
+
+var clickTimes = 0;
+var timer = null;
+$('#bt_syncDateTime').on('click', function (e) {
+  bootbox.dialog({
+                title: "{{Synchroniser}}",
+                message: "<label>{{Etes-vous sûr de vouloir synchroniser l'heure de la carte Strompi avec l'heure de Jeedom ?}}</label><p>",
+                //size: 'large',
+                buttons: {
+                  cancel: {
+                    label: "{{Annuler}}",
+                    className: 'btn-warning',
+                    callback: function(){
+					}
+                  },
+                  warning: {
+                    label: "{{Synchroniser}}",
+                    className: "btn-danger",
+                    callback: function() {
+                     	syncDateTime('syn');
+                    }
+                  },
+                  success: {
+                    label: "{{Actualiser}}",
+                    className: "btn-success",
+                    callback: function() {
+                     	syncDateTime('refresh');
+                    }
+                  },
+                }
+              });//end bootbox
+});
+
+function syncDateTime(_infosyn) {
+  	console.log('fn syncDateTime');
+  	$.ajax({
+		type: "POST", // méthode de transmission des données au fichier php
+		url: "plugins/jeestrompi/core/ajax/jeestrompi.ajax.php", 
+		data: {
+			action: "syncDateTime",
+            infosyn: _infosyn,
+            id: $('.eqLogicAttr[data-l1key=id]').value()
+		},
+		dataType: 'json',
+		global: false,
+		error: function (request, status, error) {
+			handleAjaxError(request, status, error);
+		},
+		success: function (data) { 
+			if (data.state != 'ok') {
+				$('#div_alert').showAlert({message: "syncDateTime:: " + data.result, level: 'danger'});
+				return;
+			}
+			$('#div_alert').showAlert({message: '{{Opération réalisée avec succès}}', level: 'success'});
+                    //setTimeout( function() {location.reload();}, 1000);
+
+		}
+	});
+	
+}
