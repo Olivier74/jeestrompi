@@ -161,13 +161,13 @@ class jeestrompi extends eqLogic {
 	}
   
    public function refresh() {
-		foreach ($this->getCmd('info') as $cmd) {
+		/*foreach ($this->getCmd('info') as $cmd) {
 			try {
 				$cmd->execute();
 			} catch (Exception $exc) {
 				log::add('jeestrompi', 'error', __('Erreur pour ', __FILE__) . $cmd->getHumanName() . ' : ' . $exc->getMessage());
 			}
-		}
+		}*/
 	}
   /*
   
@@ -290,6 +290,13 @@ class jeestrompi extends eqLogic {
 
   // Fonction exécutée automatiquement avant la sauvegarde (création ou mise à jour) de l'équipement
   public function preSave() {
+    //$eqlogic = $this->getEqLogic(); //récupère l'éqlogic de la commande $this
+    //$eqLogic->getConfiguration('StrompiModeConfig','');
+    //$eqLogic23 = $this->getConfiguration('StrompiModeConfig');
+    //$StrompiModeConfig =$eqlogic->getConfiguration('StrompiModeConfig');
+    $this->setConfiguration('StrompiModeConfig', 3);
+    $this->save(true);
+    log::add('jeestrompi', 'debug', 'preSave : getConfiguration: '.$eqLogic23. ' eqlogic:'.$eqlogic);
   }
 
   // Fonction exécutée automatiquement après la sauvegarde (création ou mise à jour) de l'équipement
@@ -313,19 +320,7 @@ class jeestrompi extends eqLogic {
   $StrompiDateTime->setSubType('string');
   $StrompiDateTime->setOrder(-50);
   $StrompiDateTime->save();
-
-  $strompisync = $this->getCmd(null, 'strompisync');
-  if (!is_object($strompisync)) {
-    $strompisync = new jeestrompiCmd();
-    $strompisync->setName(__('Synchro Time', __FILE__));
-  }
-  $strompisync->setEqLogic_id($this->getId());
-  $strompisync->setLogicalId('strompisync');
-  $strompisync->setType('action');
-  $strompisync->setSubType('other');
-  $strompisync->setOrder(-47);
-  $strompisync->save();	   
-	 
+ 
   $strompimode = $this->getCmd(null, 'strompimode');
   if (!is_object($strompimode)) {
     $strompimode = new jeestrompiCmd();
@@ -424,12 +419,12 @@ class jeestrompi extends eqLogic {
   $StromPiLifePo4Charge->setType('info');
   $StromPiLifePo4Charge->setTemplate('dashboard','tile');//template pour le dashboard
   $StromPiLifePo4Charge->setSubType('string');
-  $StromPiLifePo4Charge->setUnite('V');
+  $StromPiLifePo4Charge->setUnite('');
   $StromPiLifePo4Charge->setOrder(-27);
   $StromPiLifePo4Charge->save();
  
   
-    $strompisend = $this->getCmd(null, 'strompisend');
+ /*   $strompisend = $this->getCmd(null, 'strompisend');
   if (!is_object($strompisend)) {
     $strompisend = new jeestrompiCmd();
     $strompisend->setName(__('Send strompi', __FILE__));
@@ -439,7 +434,7 @@ class jeestrompi extends eqLogic {
   $strompisend->setType('action');
   $strompisend->setSubType('other');
   $strompisend->setOrder(-1);
-  $strompisend->save();	  
+  $strompisend->save();	  */
   
   $refresh = $this->getCmd(null, 'refresh');
   if (!is_object($refresh)) {
@@ -504,16 +499,12 @@ class jeestrompiCmd extends cmd {
   public function execute($_options = array()) {
     $eqlogic = $this->getEqLogic(); //récupère l'éqlogic de la commande $this
     log::add('jeestrompi', 'info', 'Lancement update par '.$this->getLogicalId());
+    $StrompiModeConfig = $eqlogic->getConfiguration('StrompiModeConfig');
+    log::add('jeestrompi', 'debug', 'execute getConfiguration Mode: '.$StrompiModeConfig);
+    log::add('jeestrompi', 'debug', 'execute jeestrompiMode: '.$eqLogic->getStatus('strompimode'));
+    //log::add('jeestrompi', 'debug', 'execute getHumanName: '.$eqLogic->getHumanName());
     switch ($this->getLogicalId()) { //vérifie le logicalid de la commande
-      case 'strompisend':
-       $object_name = $this->getEqLogic()->getHumanName();     /*$object_id = cmd::byEqLogicId('#[Exterieur][strompi]#')->getId();*/
-       $object_id = $this->getEqLogic_id();
-       $parameter = array('eqlogic' => $object_id,'action' => 'status-rpi');
-       /*$parameter = 'action';*/
-       $eqlogic->sendToDaemon($parameter);
-       log::add('jeestrompi', 'info', 'envoi d un message a la  carte strompi');
-      break;
-      case 'refresh': // LogicalId de la commande rafraîchir que l’on a créé dans la méthode Postsave de la classe vdm .
+     case 'refresh': // LogicalId de la commande rafraîchir que l’on a créé dans la méthode Postsave de la classe vdm .
        log::add('jeestrompi', 'info', 'mise a jour des valeurs de la carte strompi');
        /*$strompiTab = $eqlogic->strompiquerrry();*/
        /*$info = $eqlogic->randomVdm(); //On lance la fonction randomVdm() pour récupérer une vdm et on la stocke dans la variable $info*/
@@ -526,17 +517,13 @@ class jeestrompiCmd extends cmd {
        $eqlogic->sendToDaemon($parameter);
        log::add('jeestrompi', 'info', 'envoi d un message a la  carte strompi');
       break;
-      case 'strompisync': // LogicalId de la commande rafraîchir que l’on a créé dans la méthode Postsave de la classe vdm .
-       log::add('jeestrompi', 'info', 'mise a jour des valeurs de la carte strompi');
-      /* $strompiTab = $eqlogic->strompiquerrry();*/
-       /*$info = $eqlogic->randomVdm(); //On lance la fonction randomVdm() pour récupérer une vdm et on la stocke dans la variable $info*/
-       $object_name = $this->getEqLogic()->getHumanName();     /*$object_id = cmd::byEqLogicId('#[Exterieur][strompi]#')->getId();*/
+      /* case 'strompisend':
+       $object_name = $this->getEqLogic()->getHumanName();
        $object_id = $this->getEqLogic_id();
-       $parameter = array('eqlogic' => $object_id,'action' => 'date-rpi');
-       /*$parameter = 'action';*/
+       $parameter = array('eqlogic' => $object_id,'action' => 'status-rpi');
        $eqlogic->sendToDaemon($parameter);
-       log::add('jeestrompi', 'info', 'envoi d un message date-rpi a la  carte strompi');
-      break;
+       log::add('jeestrompi', 'info', 'envoi d un message a la  carte strompi');
+      break;*/
     }
   }
 
