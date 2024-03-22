@@ -49,15 +49,23 @@ try {
 //foreach (eqLogic::byType(__CLASS__, true) as $eqLogic) {  // pour tous les équipements actifs de la classe agendad
 //      $eqLogic->collect_agenda();
 //}	
-	$idEqLogic=$result['eqlogic'];
-	$eq=eqLogic::byid($idEqLogic);
-
+	
+  	//log::add('jeestrompi', 'debug', '****** receive daemon -----> return eqlogic:'.$result['eqlogic'];
+  	
+	
 	$eqLogics = eqLogic::byType('jeestrompi');
-	$i = 0 ;
+	$i = 0;
 	foreach($eqLogics as $eqLogic) {
 	  //$scenario->setLog($eqLogic->getLogicalId() . $eqLogic->getHumanName() . ' ' .$eqLogic->getConfiguration()['product_name']);
 	  log::add('jeestrompi', 'debug', '****** receive daemon -----> LogicalID:'.$eqLogic->getLogicalId() . ' GetId:'.$eqLogic->getId().' Name:'. $eqLogic->getHumanName() . ' config' .$eqLogic->getConfiguration()['StrompiModeConfig']);
 	  $Tabeqlogic[$i]=$eqLogic->getId();
+      /*if ($result['eqlogic'] == '0') {
+        $idEqLogic=$eqLogic->getLogicalId();
+      }else{
+        $idEqLogic=$result['eqlogic'];
+      }*/
+      $idEqLogic=$eqLogic->getId();
+      $eq=eqLogic::byid($idEqLogic);
 	  if( $eqLogic->getConfiguration()['product_name'] == 'Eurotronic') {
 		// équipements du type voulu
 	  }
@@ -77,7 +85,8 @@ try {
 	  cmd::byId($Strompi_DateTime_object_id)->event($result['StromPi-DateTimeOutput']);
 	} elseif (isset($result['StromPi-StrompiStatusOutput'])) {
 	  log::add('jeestrompi', 'debug', 'receive daemon : StromPi-StrompiStatusOutput =' .$result['StromPi-StrompiStatusOutput']);
-	  list($StromPiDateTimeOutput, $StromPiModecfg, $StromPiModeOutput, $StromPiOutputVoltage, $StromPiWide, $StromPiUSB, $StromPiLifePo4V, $StromPiLifePo4Charge) = explode("|", $result['StromPi-StrompiStatusOutput']);
+	  list($StromPiDateTimeOutput, $StromPiModecfg, $StromPiModeState, $StromPiOutputVoltage, $StromPiWide, $StromPiUSB, $StromPiLifePo4V, $StromPiLifePo4Charge) = explode("|", $result['StromPi-StrompiStatusOutput']);
+      if ($StromPiModeState == '') $StromPiModeState=-1;
 	  if ($StromPiWide == '') $StromPiWide=0;
 	  if ($StromPiModecfg == '') $StromPiModecfg=-1;
 	  if ($StromPiLifePo4V == '') $StromPiLifePo4V=-1;
@@ -99,13 +108,12 @@ try {
 			foreach($cmds as $cmd) {
 				//log::add('jeestrompi', 'debug', ' - cmd : ' . $cmd->getName() . ', value -> '. $cmd->execCmd().'  eqlogic : '.$cmd->getId());*/
 				if ($cmd->getLogicalId() == 'strompimodecfg') {
-				  //$cmd->event("2");
 					cmd::byId($cmd->getId())->event($StromPiModecfg);
-				  log::add('jeestrompi', 'debug', 'receive daemon : getId : '.$cmd->getLogicalId());
+				  	log::add('jeestrompi', 'debug', 'receive daemon : getId : '.$cmd->getLogicalId());
 				} elseif  ($cmd->getLogicalId() == 'StrompiDateTime') {
 					cmd::byId($cmd->getId())->event($StromPiDateTimeOutput);
-				} elseif  ($cmd->getLogicalId() == 'StromPiOutputMode') {
-					cmd::byId($cmd->getId())->event($StromPiModeOutput);
+				} elseif  ($cmd->getLogicalId() == 'StromPiModeState') {
+					cmd::byId($cmd->getId())->event($StromPiModeState);
 				} elseif  ($cmd->getLogicalId() == 'StromPiOutputVoltage') {
 					cmd::byId($cmd->getId())->event($StromPiOutputVoltage);
 				  log::add('jeestrompi', 'debug', 'receive daemon : getId : '.$cmd->getLogicalId());

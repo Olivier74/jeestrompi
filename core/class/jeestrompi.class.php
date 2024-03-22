@@ -266,7 +266,31 @@ class jeestrompi extends eqLogic {
       return "les infos essentiel de mon plugin";
    }
    */
-
+/*public function toHtml($_version = 'dashboard') {
+		$replace = $this->preToHtml($_version);
+		if (!is_array($replace)) {
+			return $replace;
+		}
+		$version = jeedom::versionAlias($_version);
+		
+		if ($version != 'mobile' || $this->getConfiguration('fullMobileDisplay', 0) == 1) {
+			
+		}
+  		  
+  		$StrompiDateTime = $this->getCmd(null, 'StrompiDateTime');
+		$replace['#StrompiDateTime#'] = is_object($StrompiDateTime) ? $StrompiDateTime->execCmd() : '';
+		//$temperature = $this->getCmd(null, 'temperature');
+		//$replace['#temperature#'] = is_object($temperature) ? $temperature->execCmd() : '';
+		//$replace['#tempid#'] = is_object($temperature) ? $temperature->getId() : '';
+		
+  		$replace['#LogoStation#'] = is_object($LogoStation) ? '<img src="/data/img/electrical_power_on.png" style="max-width: '.$PicSize.'px; max-height: '.$PicSize.'px;">' : '';
+		return $this->postToHtml($_version, template_replace($replace, getTemplate('core', $version, 'cmd.info.string.strompimode', 'strompimode')));
+		//if ($this->getConfiguration('modeImage', 0) == 1) {
+			//return $this->postToHtml($_version, template_replace($replace, getTemplate('core', $version, 'currentIMG', __CLASS__)));
+		//} else {
+			//return $this->postToHtml($_version, template_replace($replace, getTemplate('core', $version, 'current', __CLASS__)));
+		//}
+	}*/
   /*     * *********************Méthodes d'instance************************* */
 
   // Fonction exécutée automatiquement avant la création de l'équipement
@@ -295,8 +319,10 @@ class jeestrompi extends eqLogic {
     //$eqLogic23 = $this->getConfiguration('StrompiModeConfig');
     //$StrompiModeConfig =$eqlogic->getConfiguration('StrompiModeConfig');
     //$this->setConfiguration('StrompiModeConfig', 3);
-    $this->save(true);
-    log::add('jeestrompi', 'debug', 'preSave : getConfiguration: '.$eqLogic23. ' eqlogic:'.$eqlogic);
+    //$this->save(true);
+    //log::add('jeestrompi', 'debug', 'preSave : getConfiguration: '.$eqLogic23. ' eqlogic:'.$eqlogic);
+    $this->setDisplay("width","300px");
+    $this->setDisplay("height","270px");
   }
 
   // Fonction exécutée automatiquement après la sauvegarde (création ou mise à jour) de l'équipement
@@ -315,8 +341,8 @@ class jeestrompi extends eqLogic {
   $StrompiDateTime->setLogicalId('StrompiDateTime');
   $StrompiDateTime->setEqLogic_id($this->getId());
   $StrompiDateTime->setType('info');
-  $StrompiDateTime->setTemplate('dashboard','tile');//template pour le dashboard
-  $StrompiDateTime->setTemplate('mobile','tile');//template pour le dashboard
+  $StrompiDateTime->setTemplate('dashboard','default');//template pour le dashboard
+  $StrompiDateTime->setTemplate('mobile','default');//template pour le dashboard
   $StrompiDateTime->setSubType('string');
   $StrompiDateTime->setOrder(-50);
   $StrompiDateTime->save();
@@ -332,22 +358,23 @@ class jeestrompi extends eqLogic {
   $strompimodecfg->setTemplate('dashboard','tile');//template pour le dashboard
   $strompimodecfg->setTemplate('mobile','tile');//template pour le dashboard
   $strompimodecfg->setSubType('string');
+  $strompimodecfg->setIsVisible(0);
   $strompimodecfg->setOrder(-43);
   $strompimodecfg->save();
      
-  $StromPiOutputMode = $this->getCmd(null, 'StromPiOutputMode');
-  if (!is_object($StromPiOutputMode)) {
-    $StromPiOutputMode = new jeestrompiCmd();
-    $StromPiOutputMode->setName(__('Strompi Output Mode', __FILE__));
+  $StromPiModeState = $this->getCmd(null, 'StromPiModeState');
+  if (!is_object($StromPiModeState)) {
+    $StromPiModeState = new jeestrompiCmd();
+    $StromPiModeState->setName(__('Strompi Mode Status', __FILE__));
   }
-  $StromPiOutputMode->setLogicalId('StromPiOutputMode');
-  $StromPiOutputMode->setEqLogic_id($this->getId());
-  $StromPiOutputMode->setType('info');
-  $StromPiOutputMode->setTemplate('dashboard','tile');//template pour le dashboard
-  $StromPiOutputMode->setTemplate('mobile','tile');//template pour le dashboard
-  $StromPiOutputMode->setSubType('string');
-  $StromPiOutputMode->setOrder(-40);
-  $StromPiOutputMode->save();
+  $StromPiModeState->setLogicalId('StromPiModeState');
+  $StromPiModeState->setEqLogic_id($this->getId());
+  $StromPiModeState->setType('info');
+  $StromPiModeState->setTemplate('dashboard','strompimode');//template pour le dashboard
+  $StromPiModeState->setTemplate('mobile','strompimode');//template pour le dashboard
+  $StromPiModeState->setSubType('string');
+  $StromPiModeState->setOrder(-40);
+  $StromPiModeState->save();
 	
   $StromPiOutputVoltage = $this->getCmd(null, 'StromPiOutputVoltage');
   if (!is_object($StromPiOutputVoltage)) {
@@ -498,10 +525,10 @@ class jeestrompiCmd extends cmd {
   // Exécution d'une commande
   public function execute($_options = array()) {
     $eqlogic = $this->getEqLogic(); //récupère l'éqlogic de la commande $this
-    log::add('jeestrompi', 'info', 'Lancement update par '.$this->getLogicalId());
+    log::add('jeestrompi', 'info', 'execute : Lancement update par '.$this->getLogicalId());
     $StrompiModeConfig = $eqlogic->getConfiguration('StrompiModeConfig');
-    log::add('jeestrompi', 'debug', 'execute getConfiguration Mode: '.$StrompiModeConfig);
-    log::add('jeestrompi', 'debug', 'execute jeestrompiMode: '.$eqLogic->getStatus('strompimode'));
+    log::add('jeestrompi', 'debug', 'execute : getConfiguration Mode: '.$StrompiModeConfig);
+    //log::add('jeestrompi', 'debug', 'execute : jeestrompiModecfg: '.$eqLogic->getStatus('strompimodecfg'));
     //log::add('jeestrompi', 'debug', 'execute getHumanName: '.$eqLogic->getHumanName());
     switch ($this->getLogicalId()) { //vérifie le logicalid de la commande
      case 'refresh': // LogicalId de la commande rafraîchir que l’on a créé dans la méthode Postsave de la classe vdm .
@@ -515,6 +542,8 @@ class jeestrompiCmd extends cmd {
        $parameter = array('eqlogic' => $object_id,'action' => 'status-rpi');
        /*$parameter = 'action';*/
        $eqlogic->sendToDaemon($parameter);
+       $replace['#LogoStation#'] = is_object($LogoStation) ? '<img src="/data/img/electrical_power_on.png" style="max-width: '.$PicSize.'px; max-height: '.$PicSize.'px;">' : '';
+       //$replace['#LogoStation#'] = is_object($LogoStation) ? '<img src="'.$LogoStation->execCmd().'" style="max-width: '.$PicSize.'px; max-height: '.$PicSize.'px;">' : '';
        log::add('jeestrompi', 'info', 'envoi d un message a la  carte strompi');
       break;
       /* case 'strompisend':
