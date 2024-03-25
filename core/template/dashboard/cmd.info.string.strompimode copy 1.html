@@ -1,0 +1,98 @@
+<div class="cmd cmd-widget #history#" style="float:left; clear:both;" data-type="info" data-subtype="string" data-template="default" data-cmd_id="#id#" data-cmd_uid="#uid#" data-version="#version#" data-eqLogic_id="#eqLogic_id#">
+	<div class="content-xs">
+		<span class="cmdName #hide_name#">#name_display#</span>
+		<strong class="state"></strong> 
+     	<!--<strong class="StromPiLifePo4Charge"></strong>-->
+      <div class="classSwitch6Ways"></div> 
+	</div>
+	<script>
+                jeedom.cmd.update['#id#'] = function(_options) {
+                  		console.log("option:" + _options);
+                  		console.log('texte: #texte#');
+                  		console.log('commande #name# état #state# le #valueDate# (collecte #collectDate#) (uid=#uid#)');
+                  		var StromPiModeState = '#StromPiModeState#' === '' ? 0 : '#StromPiModeState#';
+                  		console.log("creating elements state#uid# with input[type=radio][name=key#uid#][value="+StromPiModeState+"] checked");
+                        let cmd = $('.cmd[data-cmd_id=#id#]');
+                  		cmd.attr('title','Date de valeur : '+_options.valueDate+'<br/>Date de collecte : '+_options.collectDate);
+                  		let tmpstr = _options.display_value;
+                  		if (tmpstr.search("%") > 0) {
+                          console.log("trouvé")
+                          let chagebat = tmpstr;
+                          console.log('chagebat:' + chagebat);
+                          //console.log('statemode:' + statemode);
+                          if (chagebat == '100%') {
+                          		cmd.find('.state').empty().append('<img class="img-responsive" src="plugins/jeestrompi/desktop/icons/batterie_100.png" width="70%" height="70%">');
+                            } else if (chagebat == '50%') {
+                          		cmd.find('.state').empty().append('<img class="img-responsive" src="plugins/jeestrompi/desktop/icons/batterie_50.png" width="70%" height="70%">');
+                            } else if (chagebat == '25%') {
+                          		cmd.find('.state').empty().append('<img class="img-responsive" src="plugins/jeestrompi/desktop/icons/batterie_25.png" width="70%" height="70%">');
+                            } else {
+                              	
+                            }
+                          cmd.find('.state').empty().append(chagebat);
+                        } else {
+                    		console.log("PAS trouvé")
+                          	let statemode = tmpstr;
+                          	console.log('statemode:' + statemode);
+                          	//cmd.find('.state').empty().append(statemode);
+                          	 if (statemode == 'Wide') {
+                                cmd.find('.state').empty().append('<img class="img-responsive" src="plugins/jeestrompi/desktop/icons/wide_on.png" width="70%" height="70%">');
+                            } else if (statemode == 'mUSB') {
+                                cmd.find('.state').empty().append('<img class="img-responsive" src="plugins/jeestrompi/desktop/icons/usb_on.png" width="70%" height="70%">');
+                            } else if (statemode == 'Battery') {
+								cmd.find('.state').empty().append(statemode);
+                            } else {
+								cmd.find('.state').empty().append('<img class="img-responsive" src="plugins/jeestrompi/desktop/icons/batterie_100.png" width="70%" height="70%">');
+                            }
+                  		}
+                  		
+                  		if (typeof chagebat !== 'undefined') {
+						
+						}
+                  		
+                  		 console.log(" --> " + _options.chargelevel);                 		
+                  		//cmd.find('.StromPiLifePo4Charge').empty().append('*' + chagebat + '*');
+                         //if (_options.display_value == '1') {
+                        //   cmd.find('.StromPiLifePo4Charge').empty().append(_options.display_value);
+                        // }
+                  		//	if (chagebat == '50% charging') {
+                         //       cmd.find('.state').empty().append('<img class="img-responsive" src="plugins/jeestrompi/desktop/icons/batterie_50.png" width="70%" height="70%">');
+                        //    } else if (chagebat == '100% charging') {
+                        //      cmd.find('.state').empty().append('<img class="img-responsive" src="plugins/jeestrompi/desktop/icons/batterie_100.png" width="70%" height="70%">');
+                        //    }
+                  		//cmd.find('.state').empty().append('<img class="img-responsive" src="plugins/jeestrompi/desktop/icons/batterie_50.png" width="70%" height="70%">');
+                }
+                jeedom.cmd.update['#id#']({display_value:'#state#',valueDate:'#valueDate#',collectDate:'#collectDate#',alertLevel:'#alertLevel#',chargelevel:'#StromPiLifePo4Charge#'});
+      
+      jeedom.eqLogic.byId({id: '#eqLogic_id#', success: function(result){
+        // enregistrer toutes les commandes (les modes) et les couleurs
+        // rechercher toutes les commandes de l'objet - 2e traitement asynchrone
+        jeedom.eqLogic.getCmd({id: '#eqLogic_id#', success: function(result){
+            var index = 0;
+            // template à appliquer sur chaque commande
+            result.forEach(cmd => {
+              // filtrer les commandes qui ne sont pas des modes du plugin mode
+              console.log('cmds:' + cmd.logicalId)
+              if(cmds#uid#[cmd.logicalId] != undefined){
+                // enregistrer l'id de l'input de chaque commande
+				//console.log('cmds:' + cmds#uid#[cmd.logicalId])
+                
+                index+=1;
+              }})
+            // remove radio button
+
+            // update widget avec la valeur courante
+            jeedom.cmd.update['#id#']({display_value: '#state#', value: '#state#',  valueDate: '#valueDate#', collectDate: '#collectDate#', alertLevel: '#alertLevel#'})
+          },
+          error: function(x, status, error){
+            console.log('Error calling #eqLogic_id# commands {0} {1}'.format(status, error))
+          }
+        });
+      }
+    });
+          
+       
+        
+    </script>
+  
+</div>
